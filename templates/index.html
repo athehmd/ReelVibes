@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Welcome to ReelVibes</h1>
+<p>Explore a vast array of movies and find your next favorite!</p>
+
+{% if current_user.is_authenticated %}
+<button onclick="window.location.href='{{ url_for('movies_list') }}'">Find Your Movie</button>
+<p><a href="{{ url_for('logout') }}">Log out</a></p>
+{% else %}
+<p>Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('register') }}">create an account</a> to
+    find movies.</p>
+{% endif %}
+{% endblock %}

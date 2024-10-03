@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Movies List</title>
+</head>
+
+<body>
+    <h1>Movies List</h1>
+    <ul>
+        {% for movie in movies %}
+        <li>{{ movie.title }} by {{ movie.director }} ({{ movie.year }}) - {{ movie.genre }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('logout') }}">Logout</a>
+</body>
+
+</html>
