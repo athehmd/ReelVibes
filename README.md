@@ -1,7 +1,8 @@
 # ReelVibes
 
 # Usage: 
-1. Create a virtual environment using python
+
+1. Create a virtual environment using python in the directory this repo is cloned into
 ```
 python3 -m virtualenv venv
 ```
