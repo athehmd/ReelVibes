@@ -2,10 +2,41 @@
 
 {% block content %}
 <h2>Create an Account</h2>
+
+<!-- Display flashed messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endwith %}
+
 <form method="post" action="{{ url_for('register') }}">
     <label for="username">Username:</label>
-    <input type="text" name="username" id="username" required>
+    <input type="text" id="username" name="username" required>
     <br>
-    <input type="submit" value="Register">
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+        <label for="security-question">Select a Security Question:</label>
+        <select id="security-question" name="security_question">
+            <option value="" disabled selected>Select a question</option>
+            {% for question in questions %}
+                <option value="{{ question }}">{{ questions[question] }}</option>
+            {% endfor %}
+        </select>
+        
+        <br><br>
+        
+        <label for="security-answer">Your Answer:</label>
+        <input type="text" id="security-answer" name="security_answer" required>
+        
+        <br><br>
+
+    <input type="submit" value="Submit">
 </form>
+
 {% endblock %}

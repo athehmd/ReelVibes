@@ -1,0 +1,6 @@
+bcrypt==4.2.0
+mariadb==1.1.8
+flask==3.0.0
+flask-login==0.6.3
+virtualenv==20.25.0
+requests==2.31.0
