@@ -13,8 +13,7 @@ venv\scripts\activate
 
 2. Install necessary packages
 ```
-python3 install flask
-python3 install flask_login
+pip3 install -r requirements.txt
 ```
 
 ```
