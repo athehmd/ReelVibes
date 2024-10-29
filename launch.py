@@ -1,3 +1,4 @@
 import subprocess
+import os
 
-subprocess.run(["python", "app.py"])
+subprocess.run([os.path.join("venv", "Scripts", "python"), "app.py"])

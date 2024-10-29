@@ -1,5 +1,5 @@
 import subprocess
+import os
 
 subprocess.run(["python", "-m", "virtualenv", "venv"])
-subprocess.run(["venv\scripts\activate"])
-subprocess.run(["pip3", "install", "-r", "requirements.txt"])
+subprocess.run([os.path.join("venv", "Scripts", "pip3"), "install", "-r", "requirements.txt"])
