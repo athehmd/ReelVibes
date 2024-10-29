@@ -2,20 +2,13 @@
 
 # Usage: 
 
-1. Create a virtual environment using python in the directory this repo is cloned into
+1. 
 ```
-python3 -m virtualenv venv
-```
-
-```
-venv\scripts\activate
+python configure.py
 ```
 
-2. Install necessary packages
-```
-pip3 install -r requirements.txt
-```
 
+2. 
 ```
-python3 app.py
+python launch.py
 ```
