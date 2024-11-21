@@ -4,17 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <title>{{ title }}</title>
 </head>
 
 <body>
-    <header>
-        <h1>ReelVibes</h1>
+    <!-- Custom header with navigation links -->
+    <header class="custom-header">
+        <h1 class="reelvibes-logo">ReelVibes</h1>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('recommend') }}">Recommend</a>
+            <a href="{{ url_for('login') }}">Login</a>
+        </nav>
     </header>
 
     <div class="content">
-        {% block content %}{% endblock %}
+        {% block content %}
+        {% endblock %}
     </div>
 
     <footer>

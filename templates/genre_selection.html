@@ -1,0 +1,244 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Genre Selection</title>
+    <style>
+        /* Base Container */
+        .genre-selection-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+            margin-top: 50px;
+        }
+
+        /* Title and Subtitle */
+        .genre-title {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Arial', sans-serif;
+            font-size: 36px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-align: center;
+            background: rgba(90, 2, 90, 0.8);
+            padding: 20px 30px;
+            border-radius: 12px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+            margin-top: 40px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .genre-title:hover {
+            background-color: #9c27b0;
+            border-color: #ffffff;
+        }
+
+        /* Subtitle within the same box styling */
+        .genre-subtitle {
+            font-size: 18px;
+            /* Slightly smaller font for subtitle */
+            color: rgba(255, 255, 255, 0.8);
+            /* Slightly lighter color */
+            display: block;
+            /* Stacks below the title */
+            margin-top: 5px;
+            /* Small gap from main title */
+            font-weight: normal;
+        }
+
+        /* Buttons Container */
+        .genre-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        /* Individual Buttons */
+        .genre-button {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            font-size: 1.2em;
+            color: #ffffff;
+            background-color: rgba(90, 2, 90, 0.7);
+            border: 2px solid #D9D9D9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply;
+        }
+
+        .genre-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .genre-button.selected {
+            background-color: #9c27b0;
+            border-color: #ffffff;
+        }
+
+        .genre-tick {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 1.5em;
+            color: #ffc107;
+            display: none;
+        }
+
+        .genre-button.selected .genre-tick {
+            display: inline;
+        }
+
+        /* Add background images for each genre button */
+        #drama-button {
+            background-image: url('/static/images/drama.jpg');
+            background-color: rgba(0, 0, 0, 0.7);
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        #horror-button {
+            background-image: url('/static/images/horror.jpg');
+            background-color: rgba(0, 0, 0, 0.7);
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        #action-button {
+            background-image: url('/static/images/drama.jpg');
+            background-color: rgba(0, 0, 0, 0.7);
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+
+        #comedy-button {
+            background-image: url('/static/images/comedy.jpg');
+            background-color: rgba(0, 0, 0, 0.7);
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        #animation-button {
+            background-image: url('/static/images/drama.jpg');
+            background-color: rgba(0, 0, 0, 0.7);
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        #romance-button {
+            background-image: url('/static/images/Romance.jpg');
+            background-color: rgba(0, 0, 0, 0.7);
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Select All and Done Buttons */
+        .genre-actions button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: rgba(90, 2, 90, 0.7);
+            border: 2px solid #D9D9D9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            margin-top: 20px;
+            margin-right: 10px;
+        }
+
+        .genre-actions button:hover {
+            background-color: #9c27b0;
+            border-color: #ffffff;
+        }
+
+        #done-button:disabled {
+            background-color: #555;
+            border-color: #888;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="genre-selection-container">
+        <h2 class="genre-title">
+            Genre
+            <span class="genre-subtitle">Select all that apply</span>
+        </h2>
+
+        <div class="genre-buttons">
+            <button id="drama-button" class="genre-button" onclick="toggleSelection(this)">
+                Drama
+                <span class="genre-tick">✔</span>
+            </button>
+            <button id="horror-button" class="genre-button" onclick="toggleSelection(this)">
+                Horror
+                <span class="genre-tick">✔</span>
+            </button>
+            <button id="action-button" class="genre-button" onclick="toggleSelection(this)">
+                Action
+                <span class="genre-tick">✔</span>
+            </button>
+            <button id="comedy-button" class="genre-button" onclick="toggleSelection(this)">
+                Comedy
+                <span class="genre-tick">✔</span>
+            </button>
+            <button id="animation-button" class="genre-button" onclick="toggleSelection(this)">
+                Animation
+                <span class="genre-tick">✔</span>
+            </button>
+            <button id="romance-button" class="genre-button" onclick="toggleSelection(this)">
+                Romance
+                <span class="genre-tick">✔</span>
+            </button>
+        </div>
+
+        <div class="genre-actions">
+            <button id="select-all-button" onclick="selectAllGenres()">Select All</button>
+            <button id="done-button" onclick="goToAgeRangePage()" disabled>Done</button>
+        </div>
+    </div>
+
+
+    {% block scripts %}
+    <script src="/static/js/genre_selection.js"></script>
+    {% endblock %}
+</body>
+
+</html>
+{% endblock %}

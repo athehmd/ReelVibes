@@ -1,0 +1,191 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<style>
+    /* Main Container */
+    .movie-suggestions-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        text-align: center;
+        position: relative;
+        color: #fff;
+    }
+
+    /* Styled Container for Title */
+    .title-container {
+        position: relative;
+        background: rgba(90, 2, 90, 0.7);
+        padding: 15px 30px;
+        border-radius: 8px;
+        border: 1px solid #D9D9D9;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .title-container:hover {
+        background-color: #9c27b0;
+        border-color: #ffffff;
+    }
+
+    .suggestions-title {
+        font-size: 36px;
+        font-weight: bold;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Movie Slider */
+    .movie-slider {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 80%;
+    }
+
+    .movie-display {
+        display: flex;
+        gap: 20px;
+        /* Space between movie cards */
+        overflow: hidden;
+        width: 780px;
+        /* 227px * 3 (for three movies) + 20px * 2 (for gaps) */
+        padding: 10px;
+    }
+
+
+    .movie-card {
+        flex: 0 0 227px;
+        /* Adjust width to 227px */
+        height: 390px;
+        /* Set height to 390px */
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.1);
+        text-align: center;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s;
+    }
+
+    .movie-card img {
+        width: 100%;
+        /* Ensure the image fills the width */
+        height: 100%;
+        /* Ensure the image fills the height */
+        object-fit: cover;
+        /* Maintain aspect ratio and cover the box */
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .movie-card p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .movie-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Navigation Buttons */
+    .slider-button {
+        background-color: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #fff;
+        font-size: 36px;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 50%;
+        transition: background-color 0.3s;
+    }
+
+    .slider-button:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* More Filters Button */
+    .more-filters-btn {
+        margin-top: 20px;
+        padding: 12px 30px;
+        background-color: rgba(90, 2, 90, 0.7);
+        border: 1px solid #D9D9D9;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .more-filters-btn:hover {
+        background-color: #7b1fa2;
+    }
+</style>
+
+<div class="movie-suggestions-container">
+    <div class="title-container">
+        <h1 class="suggestions-title">Movie Suggestions!</h1>
+    </div>
+
+    <div class="movie-slider">
+        <button class="slider-button" id="prev-btn">❮</button>
+        <div class="movie-display" id="movie-display">
+            <div class="movie-card">
+                <img src="/static/images/movie1.jpg" alt="Movie 1">
+                <p>The Irishman</p>
+            </div>
+            <div class="movie-card">
+                <img src="/static/images/movie2.jpg" alt="Movie 2">
+                <p>Inception</p>
+            </div>
+            <div class="movie-card">
+                <img src="/static/images/movie3.jpg" alt="Movie 3">
+                <p>Bad Boys</p>
+            </div>
+            <div class="movie-card">
+                <img src="/static/images/movie4.jpg" alt="Movie 4">
+                <p>Avatar</p>
+            </div>
+            <div class="movie-card">
+                <img src="/static/images/movie5.jpg" alt="Movie 5">
+                <p>The Matrix</p>
+            </div>
+        </div>
+        <button class="slider-button" id="next-btn">❯</button>
+    </div>
+
+    <button class="more-filters-btn">More Filters</button>
+</div>
+
+<script>
+    // JavaScript for slider functionality
+    document.addEventListener('DOMContentLoaded', () => {
+        const movieDisplay = document.getElementById('movie-display');
+        const prevButton = document.getElementById('prev-btn');
+        const nextButton = document.getElementById('next-btn');
+
+        prevButton.addEventListener('click', () => {
+            movieDisplay.scrollBy({
+                left: -300, // Adjust scroll amount
+                behavior: 'smooth',
+            });
+        });
+
+        nextButton.addEventListener('click', () => {
+            movieDisplay.scrollBy({
+                left: 300, // Adjust scroll amount
+                behavior: 'smooth',
+            });
+        });
+    });
+</script>
+
+{% endblock %}

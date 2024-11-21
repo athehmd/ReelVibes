@@ -1,0 +1,133 @@
+{% extends 'layout.html' %}
+
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Age Range Selection</title>
+    <style>
+        .age-range-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .age-button {
+            position: absolute;
+            font-family: 'Arial', sans-serif;
+            /* Same font */
+            font-size: 28px;
+            /* Same size */
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            width: 229px;
+            height: 194px;
+            background-color: rgba(128, 0, 128, 0.5);
+            border: 2px solid #D9D9D9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .age-range-question {
+            position: fixed;
+            top: 122px;
+            left: 545px;
+            width: 250px;
+            height: 45px;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            font-size: 28px;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            background: rgba(90, 2, 90, 0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid #D9D9D9;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .age-range-question:hover {
+            background-color: #9c27b0;
+            /* Lighter purple on hover for visual feedback */
+            border-color: #ffffff;
+            /* White border on hover to enhance the effect */
+        }
+
+        /* Position and styles for each button */
+        .age-button[data-age="G"] {
+            left: 292px;
+            top: 292px;
+            background-color: rgba(128, 0, 128, 0.5);
+            font-size: 28px;
+        }
+
+        .age-button[data-age="PG"] {
+            left: 871px;
+            top: 292px;
+            background-color: rgba(128, 0, 128, 0.5);
+            font-size: 28px;
+            /* Large enough size for visibility */
+
+        }
+
+        .age-button[data-age="PG-13"] {
+            left: 292px;
+            top: 528px;
+            background-color: rgba(128, 0, 128, 0.5);
+            font-size: 28px;
+            /* Large enough size for visibility */
+
+        }
+
+        .age-button[data-age="18+"] {
+            left: 871px;
+            top: 528px;
+            background-color: rgba(128, 0, 128, 0.5);
+            font-size: 28px;
+            /* Large enough size for visibility */
+
+        }
+
+        .age-button:hover {
+            transform: scale(1.05);
+            background-color: #9c27b0;
+            /* Lighter purple on hover for visual feedback */
+            border-color: #ffffff;
+            /* White border on hover to enhance the effect */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="age-range-container">
+        <h2 class="age-range-question">Age Range</h2>
+        <button class="age-button" data-age="G" onclick="navigateToYear('G')">G</button>
+        <button class="age-button" data-age="PG" onclick="navigateToYear('PG')">PG</button>
+        <button class="age-button" data-age="PG-13" onclick="navigateToYear('PG-13')">PG-13</button>
+        <button class="age-button" data-age="18+" onclick="navigateToYear('18+')">18+</button>
+    </div>
+
+
+
+
+    {% block scripts %}
+    <script src="/static/js/age_range.js"></script>
+
+    {% endblock %}
+
+</body>
+
+</html>
+{% endblock %}

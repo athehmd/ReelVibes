@@ -1,0 +1,111 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<style>
+    .random-movie-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        text-align: center;
+        color: #ffffff;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Title Container Styling */
+    .title-container {
+        background-color: rgba(90, 2, 90, 0.7);
+        border-radius: 8px;
+        padding: 10px 20px;
+        text-align: center;
+        border-radius: 8px;
+        border: 1px solid #D9D9D9;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .title-container:hover {
+        background-color: #9c27b0;
+        border-color: #ffffff;
+    }
+
+    .random-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #ffffff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        margin: 0;
+    }
+
+    .random-movie-card {
+        width: 227px;
+        /* Match the width of the Movie Suggestions cards */
+        height: 390px;
+        /* Match the height of the Movie Suggestions cards */
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .random-movie-card img {
+        width: 100%;
+        /* Ensure the image fills the width */
+        height: 100%;
+        /* Ensure the image fills the height */
+        object-fit: cover;
+        /* Maintain aspect ratio and cover the box */
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+
+    .random-movie-card:hover {
+        transform: scale(1.05);
+    }
+
+
+    .back-button {
+        background-color: rgba(90, 2, 90, 0.7);
+        color: #ffffff;
+        border: 1px solid #D9D9D9;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    }
+
+    .back-button:hover {
+        background-color: #9c27b0;
+        border-color: #D9D9D9;
+    }
+</style>
+
+<div class="random-movie-container">
+    <div class="title-container">
+        <h1 class="random-title">Randomized Movie of the Day!</h1>
+    </div>
+    <div class="random-movie-card">
+        <img src="/static/images/random_movie.jpg" alt="Randomized Movie">
+    </div>
+    <button class="back-button" onclick="window.location.href='/'">Back to Home</button>
+</div>
+
+
+
+<script>
+    // JavaScript logic if needed
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Randomized Movie Page Loaded');
+    });
+</script>
+{% endblock %}

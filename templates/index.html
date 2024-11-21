@@ -1,14 +1,31 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-<h1>Welcome to ReelVibes</h1>
-<p>Explore a vast array of movies and find your next favorite!</p>
+<div class="custom-header">
+    <h1 class="reelvibes-logo">ReelVibes</h1>
+    <div class="nav-links">
+        <a href="{{ url_for('recommend') }}">Recommend</a>
+        <a href="{{ url_for('login') }}">Login</a>
+    </div>
+</div>
 
-{% if current_user.is_authenticated %}
-<button onclick="window.location.href='{{ url_for('movies_list') }}'">Find Your Movie</button>
-<p><a href="{{ url_for('logout') }}">Log out</a></p>
-{% else %}
-<p>Please <a href="{{ url_for('login') }}">log in</a> or <a href="{{ url_for('register') }}">create an account</a> to
-    find movies.</p>
-{% endif %}
+<div class="container">
+    <button class="main-button" onclick="window.location.href='{{ url_for('choose_service') }}'">Find your
+        movie</button>
+    🎬</button>
+    <button class="randomize-button" onclick="randomizeMovie()">Randomize 🔄</button>
+</div>
+
+<!-- Modal for displaying random movie details -->
+<div class="modal" id="random-movie-modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="toggleModal('random-movie-modal')">&times;</span>
+        <h2>Random Movie</h2>
+        <p id="random-movie-details">Loading...</p>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/movie_functions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modal.js') }}"></script>
 {% endblock %}

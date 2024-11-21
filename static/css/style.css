@@ -1,100 +1,712 @@
-/* Base Styles */
+
+@font-face {
+    font-family: 'PorterSansBlock';
+    src: url('/static/css/fonts/porter-sans-block.block.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 body {
-    background-color: #5d2555; /* Purple background */
-    color: #ffffff; /* White text for better contrast */
+    background: url('/static/images/movie_background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
     font-family: 'Arial', sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+    position: relative;
 }
 
-header {
-    background-color: #432c47; /* Darker purple header */
-    color: #fff;
-    padding: 10px 20px;
-    text-align: center;
-}
-
-footer {
-    background-color: #432c47; /* Matching footer */
-    color: #fff;
-    text-align: center;
-    padding: 10px 20px;
+/* Dark overlay for background */
+body::before {
+    content: "";
     position: fixed;
-    bottom: 0;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 0;
 }
 
-h1, h2 {
-    color: #ffc107; /* Golden text for headers */
+
+/* Custom Header Styling */
+.custom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px; /* Adjust padding to ensure links are not too close to the edge */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0; /* Ensure it spans the full width */
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2;
 }
 
-a {
-    color: #ffc107; /* Golden links */
+.nav-links {
+    display: flex;
+    gap: 20px; /* Uniform gap between links */
+}
+
+.nav-links a {
+    color: #ffc107;
     text-decoration: none;
+    padding: 10px 15px; /* Consistent padding around the links */
+    font-size: 1em;
+    transition: color 0.3s ease;
 }
 
-/* Styling for buttons */
-button {
-    background-color: #6a1b9a; /* Deep purple button */
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
+.nav-links a:hover {
+    color: #ffffff; /* Ensuring hover color is consistent and visible */
+}
+
+.reelvibes-logo {
+    font-size: 1.5em;
+    color: #ffc107;
+    font-family: 'PorterSansBlock', sans-serif;
+    margin: 0;  /* Remove any default margin */
+}
+
+
+/* Genre Selection Container */
+.genre-selection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
     text-align: center;
-    text-decoration: none;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+    margin-top: 50px; /* Adjust this value as needed to move everything down */
+
+}
+
+/* Combined Title and Subtitle Styling */
+.genre-title {
+    position: absolute; /* Make it relative to its container */
+    top: 150px; /* Distance from the top of the container */
+    left: 50%; 
+    transform: translateX(-50%); /* Center precisely */
+    font-family: 'Arial', sans-serif;
+    font-size: 36px; /* Main title font size */
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    background: rgba(90, 2, 90, 0.8);
+    padding: 20px 30px;
+    border-radius: 12px;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+    margin-top: 40px;
     display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-button:hover {
-    background-color: #9c27b0; /* Lighter purple on hover */
+/* Subtitle within the same box styling */
+.genre-subtitle {
+    font-size: 18px; /* Slightly smaller font for subtitle */
+    color: rgba(255, 255, 255, 0.8); /* Slightly lighter color */
+    display: block; /* Stacks below the title */
+    margin-top: 5px; /* Small gap from main title */
+    font-weight: normal;
 }
 
-/* Form Styling */
-form {
-    text-align: center;
-    margin-top: 20px;
+
+.genre-title:hover {
+    background-color: #9c27b0;
+    border-color: #ffffff;
 }
 
-input[type="text"], input[type="password"], select {
-    padding: 8px;
-    margin: 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
-    width: 50%; /* Adjust width as needed */
+/* Genre Buttons */
+.genre-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
 }
 
-input[type="submit"], button {
-    padding: 10px 20px;
-    margin-top: 10px;
-    background-color: #6a1b9a; /* Deep purple */
+.genre-button {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    font-size: 1.2em;
     color: #ffffff;
+    background: rgba(90, 2, 90, 0.7);
+    border: 2px solid #D9D9D9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Tick icon styling */
+.genre-tick {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 1.5em;
+    color: #ffc107; /* Gold color for the tick */
+    display: none; /* Hidden by default */
+}
+
+/* Show the tick icon when selected */
+.genre-button.selected .genre-tick {
+    display: inline;
+}
+
+.genre-button.selected {
+    background-color: #9c27b0;
+    border-color: #ffffff;
+}
+
+
+/* Style for Select All and Done buttons */
+.genre-actions button {
+    padding: 12px 24px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(90, 2, 90, 0.7); /* Deep purple background */
+    border: 2px solid #D9D9D9; /* Light grey border */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8); /* Shadow to match other buttons */
+}
+
+@font-face {
+    font-family: 'PorterSansBlock';
+    src: url('/static/css/fonts/porter-sans-block.block.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Base Styles */
+/* Global background styling for all pages */
+body {
+    background: url('/static/images/movie_background.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+/* Dark overlay for background */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 0;
+}
+
+
+/* Custom Header Styling */
+.custom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px; /* Adjust padding to ensure links are not too close to the edge */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0; /* Ensure it spans the full width */
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px; /* Uniform gap between links */
+}
+
+.nav-links a {
+    color: #ffc107;
+    text-decoration: none;
+    padding: 10px 15px; /* Consistent padding around the links */
+    font-size: 1em;
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: #ffffff; /* Ensuring hover color is consistent and visible */
+}
+
+.reelvibes-logo {
+    font-size: 1.5em;
+    color: #ffc107;
+    font-family: 'PorterSansBlock', sans-serif;
+    margin: 0;  /* Remove any default margin */
+}
+
+.age-range-container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+}
+
+.age-button {
+    position: absolute;
+    width: 229px;
+    height: 194px;
+    font-size: 1.2em;
+    color: #ffffff;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: multiply;
+    border: 2px solid #D9D9D9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.age-range-question {
+    position: fixed; /* Fixed position to ensure it stays put relative to the viewport */
+    top: 122px; /* Position from the top of the viewport */
+    left: 545px; /* Position from the left of the viewport */
+    width: 250px; 
+    height: 50px;
+    text-align: center;
+    font-family: 'Arial', sans-serif; /* Consistent font family with other UI elements */
+    font-size: 28px; /* Large enough size for visibility */
+    color: #ffffff; /* White color for the text */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Shadow for text to ensure it stands out */
+    background: rgba(90, 2, 90, 0.7); /* Semi-transparent purple background similar to button styles */
+    padding: 10px 20px; /* Padding to create some breathing room around the text */
+    border-radius: 8px; /* Rounded corners to match other UI elements */
+    border: 1px solid #D9D9D9; /* Light grey border for a little contrast */
+    transition: background-color 0.3s, border-color 0.3s; /* Transition for interactive hover effect */
+}
+
+.age-range-question:hover {
+background-color: #9c27b0; /* Lighter purple on hover for visual feedback */
+border-color: #ffffff; /* White border on hover to enhance the effect */
+}
+
+/* Position and styles for each button */
+.age-button[data-age="G"] {
+    left: 292px;
+    top: 292px;
+    background-color: rgba(128, 0, 128, 0.5);
+    font-size: 28px; /* Large enough size for visibility */
+
+}
+
+.age-button[data-age="PG"] {
+    left: 871px;
+    top: 292px;
+    background-color: rgba(128, 0, 128, 0.5);
+    font-size: 28px; /* Large enough size for visibility */
+
+}
+
+.age-button[data-age="PG-13"] {
+    left: 292px;
+    top: 528px;
+    background-color: rgba(128, 0, 128, 0.5);
+    font-size: 28px; /* Large enough size for visibility */
+
+}
+
+.age-button[data-age="18+"] {
+    left: 871px;
+    top: 528px;
+    background-color: rgba(128, 0, 128, 0.5);
+    font-size: 28px; /* Large enough size for visibility */
+
+}
+
+.age-button:hover {
+    transform: scale(1.05);
+    border-color: #ffffff;
+}
+
+/* Genre Selection Container */
+.genre-selection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+    margin-top: 50px;
+}
+
+/* Combined Title and Subtitle Styling */
+.genre-title {
+    position: absolute;
+    top: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Arial', sans-serif;
+    font-size: 36px;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    background: rgba(90, 2, 90, 0.8);
+    padding: 20px 30px;
+    border-radius: 12px;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+    margin-top: 40px;
+    display: inline-block;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.genre-subtitle {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.8);
+    display: block;
+    margin-top: 5px;
+    font-weight: normal;
+}
+
+.genre-title:hover {
+    background-color: #9c27b0;
+    border-color: #ffffff;
+}
+
+/* Genre Buttons */
+.genre-button {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    font-size: 1.2em;
+    color: #ffffff;
+    background-size: cover; /* Make the image cover the button */
+    background-position: center; /* Center the image within the button */
+    border: 2px solid #D9D9D9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+}
+
+/* Add background images for each genre button */
+#drama-button {
+    background-image: url('/static/images/drama.jpg');
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+}
+
+#horror-button {
+    background-image: url('/static/images/horror.jpg');
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+}
+
+#action-button {
+    background-image: url('/static/images/drama.jpg');
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+}
+
+
+#comedy-button {
+    background-image: url('/static/images/comedy.jpg');
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+}
+
+#animation-button {
+    background-image: url('/static/images/drama.jpg');
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+}
+
+#romance-button {
+    background-image: url('/static/images/Romance.jpg');
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+}
+
+.genre-button:hover {
+    background-color: rgba(255, 255, 255, 0.3); 
+    border-color: #ffffff;  
+    transform: scale(1.1);  
+    transition: all 0.3s ease; 
+}
+
+
+/* Tick Icon Styling */
+.genre-tick {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 1.5em;
+    color: #ffc107;
+    display: none;
+}
+
+.genre-button.selected .genre-tick {
+    display: inline;
+}
+
+
+.genre-actions button:hover {
+    background-color: #9c27b0 !important;
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+}
+/* Style for Select All and Done buttons */
+.genre-actions {
+    position: absolute;
+    margin-top: 300px; /* Space from the genre buttons above */
+    left: 48.6%; /* Center the buttons horizontally */
+    transform: translateX(-50%); /* Adjust the position to be exactly centered */
+    display: flex;
+    gap: 40px; /* Space between the "Select All" and "Done" buttons */
+}
+
+#done-button:disabled {
+    background-color: #555;
+    border-color: #888;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+
+.streaming-service-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+}
+
+.streaming-service-question {
+    position: fixed; /* Fixed position to ensure it stays put relative to the viewport */
+    top: 122px; /* Position from the top of the viewport */
+    left: 545px; /* Position from the left of the viewport */
+    width: 250px; 
+    height: 65px;
+    text-align: center;
+    font-family: 'Arial', sans-serif; /* Consistent font family with other UI elements */
+    font-size: 28px; /* Large enough size for visibility */
+    color: #ffffff; /* White color for the text */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); /* Shadow for text to ensure it stands out */
+    background: rgba(90, 2, 90, 0.7); /* Semi-transparent purple background similar to button styles */
+    padding: 10px 20px; /* Padding to create some breathing room around the text */
+    border-radius: 8px; /* Rounded corners to match other UI elements */
+    border: 1px solid #D9D9D9; /* Light grey border for a little contrast */
+    transition: background-color 0.3s, border-color 0.3s; /* Transition for interactive hover effect */
+}
+
+.streaming-service-question:hover {
+    background-color: #9c27b0; /* Lighter purple on hover for visual feedback */
+    border-color: #ffffff; /* White border on hover to enhance the effect */
+}
+
+
+
+.streaming-button {
+    position: absolute;
+    width: 229px;
+    height: 194px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: none;
     cursor: pointer;
     border-radius: 5px;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px; /* Larger font size for visibility */
+    font-weight: bold;
+    color: #FFFFFF; /* Text color */
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
 }
 
-input[type="submit"]:hover, button:hover {
+
+#netflix-button {
+    left: 292px; /* X position for Netflix */
+    top: 292px; /* Y position for Netflix */
+    background-image: url('/static/images/netflix.jpg'); /* Adjust the path as needed */
+    background-color: rgba(229, 9, 20, 0.8); /* Darker tint for visibility */
+    background-size: cover; /* Ensures the image covers the entire button */
+    background-position: center; /* Centers the image within the button */
+    background-blend-mode: multiply; /* Blends the background color with the image */
+    width: 229px;  /* Width of the button */
+    height: 194px; /* Height of the button */
+}
+
+#hulu-button {
+    left: 871px; /* X position for Hulu */
+    top: 292px; /* Y position for Hulu */
+    background-image: url('/static/images/hulu.jpg');
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(28, 231, 131, 0.6); /* Hulu green with tint */
+    background-blend-mode: multiply;
+    width: 229px;
+    height: 194px;
+}
+
+
+#third-party-button {
+    left: 292px; /* X position for Third Party Sites */
+    top: 528px; /* Y position for Third Party Sites */
+    background-image: url('/static/images/third_party.jpg'); /* Adjust the path as needed */
+    background-size: cover;
+    background-position: center;
+    background-color: rgba(255, 165, 0, 0.6); /* Third Party orange with tint */
+    background-blend-mode: multiply;
+    width: 229px;
+    height: 194px;
+}
+
+#all-button {
+    left: 871px; /* X position for All of Them */
+    top: 528px; /* Y position for All of Them */
+    background-image: url('/static/images/all_streaming_services.jpg'); /* Ensure the path is correct */
+    background-size: cover; /* Cover the entire button area */
+    background-position: center; /* Center the image in the button */
+    background-color: rgba(62, 62, 62, 0.6); /* Blue tint with reduced opacity for darker tint */
+    background-blend-mode: multiply; /* Blend mode for combining color and image */
+    width: 229px;  /* Width of the button */
+    height: 194px; /* Height of the button */
+}
+
+
+/* Ensuring the container fills height */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+}
+
+
+
+/* Button Styling */
+.main-button, .randomize-button {
+    background-color:rgba(90, 2, 90, 0.7); /* Deep purple background */
+    color: #ffffff; /* White text */
+    border: 1px solid #D9D9D9; /* Light purple border */
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 8px; /* Rounded corners */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Black border around text */
+
+}
+
+.main-button {
+    padding: 20px 40px; /* Larger padding for a bigger button */
+    font-size: 1.4em; /* Larger font size for the main action */
+}
+
+.randomize-button {
+    padding: 15px 30px; /* Slightly smaller than the main button */
+    font-size: 1.2em; /* Slightly smaller font size */
+}
+.main-button:hover, .randomize-button:hover {
     background-color: #9c27b0; /* Lighter purple on hover */
+    border-color: #D9D9D9; /* Change border color on hover */
+}
+
+/* Ensuring the container fills height */
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+    color: #ffffff;
+    position: relative;
+    z-index: 1;
+}
+
+
+
+/* Button Styling */
+.main-button, .randomize-button {
+    background-color:rgba(90, 2, 90, 0.7); /* Deep purple background */
+    color: #ffffff; /* White text */
+    border: 1px solid #D9D9D9; /* Light purple border */
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 8px; /* Rounded corners */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Black border around text */
+
+}
+
+.main-button {
+    padding: 20px 40px; /* Larger padding for a bigger button */
+    font-size: 1.4em; /* Larger font size for the main action */
+}
+
+.randomize-button {
+    padding: 15px 30px; /* Slightly smaller than the main button */
+    font-size: 1.2em; /* Slightly smaller font size */
+}
+.main-button:hover, .randomize-button:hover {
+    background-color: #9c27b0; /* Lighter purple on hover */
+    border-color: #D9D9D9; /* Change border color on hover */
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-    body, header, footer {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    
-    h1, h2 {
-        font-size: 1.5em; /* Smaller text on small devices */
+    .container, .custom-header {
+        padding: 10px;
     }
 
-    input[type="text"], input[type="password"], select {
-        width: 70%; /* Adjust for smaller screens */
+    .main-button, .randomize-button {
+        font-size: 1em;
+        padding: 10px 20px;
     }
 }
+
+

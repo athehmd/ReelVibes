@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_sqlalchemy import SQLAlchemy
 import logging
 from bcrypt import hashpw, checkpw, gensalt
-import os
-import mariadb
 import random
 
 # Constants
@@ -13,13 +12,16 @@ SUCCESS = 0
 
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root1234@localhost/reelvibes1'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
 # Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-#Create log file
+# Create log file
 logger = logging.getLogger("mylog")
 logger.setLevel(logging.INFO)
 
@@ -48,32 +50,21 @@ security_questions = {
     5 : "What is your first pet's name?"
 }
 
-# Connect to the database
-try:
-    conn = mariadb.connect(
-        user="root",
-        password=os.environ["mariadbpassword"],
-        host="127.0.0.1",
-        port=3306,
-        database="reelvibes1"
-    )
-except mariadb.Error as e:
-    logger.error(f"Error connecting to MariaDB Platform: {e}")
-
-
 # User class for Flask-Login
 class User(UserMixin):
-    def __init__(self, id):
-        self.id = id
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
 
 # User loader function
 @login_manager.user_loader
 def load_user(user_id):
-    return User(user_id)
+    return User.query.get(int(user_id))
 
 @app.route('/')
 def home():
-    return render_template('index.html', title='Home Page')
+    return render_template('home.html', title='Home Page')
+
 
 @app.route('/movies')
 @login_required
@@ -99,90 +90,29 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        status = login_check(username, password)
-        if status == SUCCESS:
-            #user = request.form['nm']
+        user = User.query.filter_by(username=username).first()
+        if user and checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            login_user(user)
             return redirect('/')
         else:
-            return render_template('login.html')
-    else:
-        return render_template('login.html')  # Create an HTML template for the login page
-    
-def login_check(username, password) -> int:
-    """System login.
-
-    Returns:
-        0 for successful.
-        1 for failure.
-    """
-    logger.info("Login. Getting user input")
-
-    try:
-        cursor = conn.cursor()
-        # collect usernames and passwords
-        user_search = "SELECT username, password FROM users WHERE username=%s AND password=%s"
-        hashed_pw = hashpw(password.encode('utf-8'), gensalt())
-        logger.info("Collect username and password")
-        cursor.execute(user_search, (username, hashed_pw))
-        logger.info(f"{username} is a member.")
-        logger.info("User logged in.")
-        cursor.close()
-        return SUCCESS
-    
-    except mariadb.Error as err:
-        logger.error("Pw/Username doesn't exist. Execution halt.")
-        logger.error(f"Execution halt {err}")
-
-        return FAILURE
+            flash('Login Failed. Check your credentials.')
+    return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        sec_quest_id = request.form['security_question']
-        security_answer = request.form['security_answer']
-        status = register_check(username, password, sec_quest_id, security_answer)
-        
-        if status == EXIT:
-            flash("Username already exists. Please try another or try logging in.")
-            logger.info("FLASH")
-            return redirect('/register')
-        
-        if status != FAILURE:
-            # Successful register, you can redirect the user to the login page or any other page
-            return redirect('/login')
-    return render_template('register.html', questions=security_questions)
-
-def register_check(username, password, sec_quest_id, security_answer) -> str:
-    logger.info("Gathering username.")
-    
-    logger.info("Gathering cursor.")
-    cursor = conn.cursor()
-    
-    if login_check(username, password) == SUCCESS:
-        return EXIT
-    
-    # first, hash the password for the user before storing
-    logger.info("Hashing user password.")
-    hashed_pw = hashpw(password.encode('utf-8'), gensalt())
-    insert_user = "INSERT INTO users (username, password, security_question_id, security_answer, created_at) VALUES (%s, %s, %s, %s, NOW())"
-    user_data = (username, hashed_pw, sec_quest_id, security_answer)
-
-    # execute and commit
-    try:
-        logger.info("Insert new user into the database.")
-
-        cursor.execute(insert_user, user_data)
-        cursor.close()
-        conn.commit()
-        
-    except mariadb.Error as err:
-        logger.error(f"Failed to insert: {err}")
-        return 'FAILURE'
-    
-    logger.info("User created.")
-    return 'SUCCESS'
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists.')
+            return redirect(url_for('register'))
+        else:
+            hashed_password = hashpw(password.encode('utf-8'), gensalt())
+            new_user = User(username=username, password=hashed_password.decode('utf-8'))
+            db.session.add(new_user)
+            db.session.commit()
+            return redirect(url_for('login'))
+    return render_template('register.html')
 
 @app.route('/logout')
 @login_required
@@ -190,5 +120,44 @@ def logout():
     logout_user()
     return redirect(url_for('home'))
 
+@app.route('/recommend')
+@login_required
+def recommend():
+    return render_template('recommend.html', title='Recommendations')
+
+@app.route('/choose_service')
+def choose_service():
+    return render_template('choose_service.html')
+
+@app.route('/genre_selection')
+def genre_selection():
+    return render_template('genre_selection.html')  # Template for the genre selection page
+    
+
+@app.route('/Age_range.html')
+def age_range():
+    return render_template('Age_range.html')
+
+@app.route('/year_of_release.html')
+def year_of_release():
+    age = request.args.get('age', 'All')  # Default to 'All' if no parameter is provided
+    return render_template('year_of_release.html', age=age)
+
+@app.route('/movie_selection.html')
+def movie_selection():
+    # Get query parameters for age and start year
+    age = request.args.get('age', 'All')  # Default to 'All' if no age is provided
+    start_year = request.args.get('start_year', 1954)  # Default to 1954 if no start year is provided
+    
+    # You can pass these parameters to the template for further use
+    return render_template('movie_selection.html', age=age, start_year=start_year)
+
+@app.route('/random_movie')
+def random_movie():
+    return render_template('random_movie.html')
+
+
+
 if __name__ == "__main__":
+    db.create_all()  # This line will create all tables based on the models declared
     app.run(debug=True)
