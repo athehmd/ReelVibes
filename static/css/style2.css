@@ -14,7 +14,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: url(bg6.jpeg) no-repeat;
+  background: url(movie_background.jpg) no-repeat;
   background-color: rgba(90, 2, 90, 0.5);
   background-blend-mode: multiply; 
   background-size: cover;
@@ -84,7 +84,7 @@ header {
 }
 
 .wrapper.active {
-  height: 520px;
+  height: 600px;
 }
 
 .wrapper .form-box {
@@ -188,6 +188,7 @@ h3 {
 
 .remember-forgot a:hover {
   text-decoration: underline;
+  color: #C6AD25;
 }
 
 .btn {
@@ -225,3 +226,65 @@ h3 {
 .login-register p a:hover {
   text-decoration: underline;
 }
+
+
+/* FORGOT-RESET */
+
+.wrapper.forgot {
+  position: relative;
+  width: 400px;
+  height: 500px;
+  background: rgba(90, 2, 90, 0.8);
+  border: 2px solid rgba(255, 255, 255, .5);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: height .2s ease;
+  overflow: hidden;
+}
+
+.wrapper .form-box.forgot {
+  position: absolute;
+  width: 100%;
+  padding: 40px;
+}
+
+h5 {
+  color: #C6AD25;
+  text-align: center;
+}
+
+.forgot-btn {
+  width: 100%;
+  height: 45px;
+  background: #fff;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  box-shadow: 0 0 10px rgba(0 ,0, 0, .1);
+  cursor: pointer;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.wrapper.reset {
+  position: relative;
+  width: 400px;
+  height: 360px;
+  background: rgba(90, 2, 90, 0.8);
+  border: 2px solid rgba(255, 255, 255, .5);
+  border-radius: 20px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: height .2s ease;
+  overflow: hidden;
+}
+
