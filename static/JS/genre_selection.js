@@ -15,15 +15,20 @@ function updateDoneButtonState() {
     document.getElementById('done-button').disabled = buttons.length === 0; // Enable 'Done' button if any are selected
 }
 
-function goToAgeRangePage() {
+
+function goToAgeRangePage(service) {
+    console.log('Service: ', service)
     const selectedGenres = Array.from(document.querySelectorAll('.genre-button.selected'))
-        .map(button => button.textContent.trim()); // Get selected genres
+        .map(button => button.textContent.trim().replace(/\s+/g, ''));
 
     if (selectedGenres.length > 0) {
+        // Construct the URL with service and genres as query parameters
+        const genreParam = encodeURIComponent(selectedGenres.join(','));
+        const url = `/Age_range.html?service=${encodeURIComponent(service)}&genres=${genreParam}`;
+        console.log('Redirecting to: ', url);
         // Redirect to the Age_range.html page
-        window.location.href = `/Age_range.html`;
+        window.location.href = url;
     } else {
-        // Simple alert if no genres are selected
         alert('Please select at least one genre before proceeding.');
     }
 }
