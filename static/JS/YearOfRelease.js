@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const rangeInput = document.getElementById('year-range');
     const yearDisplay = document.getElementById('selected-year');
+    const form = document.querySelector('form');
+    const applyButton = document.getElementById('apply-button');
 
     function updateSliderBackground() {
         const value = rangeInput.value;
@@ -21,12 +23,18 @@ document.addEventListener('DOMContentLoaded', () => {
     yearDisplay.textContent = `${rangeInput.value}`;
     updateSliderBackground();
 
-    // Apply button functionality
-    document.getElementById('apply-button').addEventListener('click', () => {
-        const selectedYear = rangeInput.value; // Get the current slider value
-        const ageRange = new URLSearchParams(window.location.search).get('age') || 'All';
+    applyButton.addEventListener('click', (event) => {
+        // Prevent form submission until we set the hidden input value
+        event.preventDefault();
 
-        // Redirect with correct query parameters
-        window.location.href = `/movie_selection.html?age=${encodeURIComponent(ageRange)}&start_year=${encodeURIComponent(selectedYear)}`;
+        const selectedYear = rangeInput.value;
+        console.log(`Selected year: ${selectedYear}`); // For debugging
+
+        // Set the hidden input value
+        document.getElementById('start_year').value = selectedYear;
+
+        // Manually submit the form after setting the hidden input value
+        form.submit();
     });
+    
 });
