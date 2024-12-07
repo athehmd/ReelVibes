@@ -1,35 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from flask_sqlalchemy import SQLAlchemy
-import logging
+import logging, datetime
 from bcrypt import hashpw, checkpw, gensalt
-import random
 import os
-import dotenv
-import requests
+import mysql.connector
+import random, requests, typing 
+from typing import Optional
+from datetime import timedelta
 
 # Constants
 FAILURE = 1
 EXIT = 2
 SUCCESS = 0
 
-dotenv.load_dotenv()
-
-
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/reelvibes1'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-TMDB_API_KEY = os.getenv("TMDB_API_KEY") # Get API Key from .env file 
-BEARER_TOKEN = os.getenv("BEARER_TOKEN") # READ TOKEN
 
 # Flask-Login setup
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Create log file
+#Create log file
 logger = logging.getLogger("mylog")
 logger.setLevel(logging.INFO)
 
@@ -58,21 +50,106 @@ security_questions = {
     5 : "What is your first pet's name?"
 }
 
-# User class for Flask-Login
-class User(UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+# API Endpoint Shortcuts
+base_url = "https://api.themoviedb.org/3/"
 
-# User loader function
+headers = {
+    "accept": "application/json",
+    "Authorization": f"Bearer {os.environ.get('tmdbAPIKEY')}", #replace 'os.environ.get() with your own environment variable [WINDOWS ONLY]
+}
+movie_endpoint = f"{base_url}search/movie"
+popular_endpoint = f"{base_url}movie/popular"
+
+#             Example: 
+# query = request.form[query] <- gets query from html webpage
+# response = requests.get(movie_endpoint, headers=headers, params={"query": query})
+#
+# if response.status_code == 200:
+#     data = response.json()
+#     print(data)
+# else:
+#     print(f"Error: {response.status_code}")
+
+# Connect to the database
+conn = None
+try:
+    conn = mysql.connector.connect(
+        user="root",
+        password=os.environ.get("mariadbpassword"),
+        host="127.0.0.1",
+        port=3306,
+        database="reelvibes"
+    )
+except mysql.connector.Error as e:
+    logger.error(f"Error connecting to DB Platform: {e}")
+
+if conn != None:
+    cursor = conn.cursor()
+else:
+    logger.error(f"cursor is none")
+
+# User class for Flask-Login
+
+class User(UserMixin):
+    def __init__(self, user_id: str, username: str):
+        self.id = user_id
+        self.username = username
+    
+    @staticmethod
+    def getId(self):
+        return self.username
+    
+    @staticmethod
+    def get_user_by_id(conn, user_id: str) -> Optional['User']:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT id, username FROM users WHERE id = %s", (user_id,))
+            user_data = cursor.fetchone()
+            cursor.close()
+            
+            if user_data:
+                return User(str(user_data['id']), user_data['username'])
+            return None
+        except mysql.connector.Error as err:
+            logger.error(f"Error fetching user by ID: {err}")
+            return None
+    
+    @staticmethod
+    def get_user_by_username(conn, username: str) -> Optional['User']:
+        try:
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT id, username FROM users WHERE username = %s", (username,))
+            user_data = cursor.fetchone()
+            cursor.close()
+            
+            if user_data:
+                return User(str(user_data['id']), user_data['username'])
+            return None
+        except mysql.connector.Error as err:
+            logger.error(f"Error fetching user by username: {err}")
+            return None
+
+# Update the user loader function
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    try:
+        local_conn = mysql.connector.connect(
+            user="root",
+            password=os.environ.get("mariadbpassword"),
+            host="127.0.0.1",
+            port=3306,
+            database="reelvibes"
+        )
+        user = User.get_user_by_id(local_conn, user_id)
+        local_conn.close()
+        return user
+    except mysql.connector.Error as err:
+        logger.error(f"Error in user loader: {err}")
+        return None
 
 @app.route('/')
 def home():
-    return render_template('home.html', title='Home Page')
-
+    return render_template('index.html', title='Home Page')
 
 @app.route('/movies')
 @login_required
@@ -96,37 +173,367 @@ def filter_movies(genre, year, director):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = User.query.filter_by(username=username).first()
-        if user and checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-            login_user(user)
-            return redirect('/')
-        else:
-            flash('Login Failed. Check your credentials.')
-    return render_template('login.html')
+        form_type = request.form.get('form_type')
+        if form_type == 'login':  # Handle login form 
+            username = request.form['username']
+            password = request.form['password']
+            remember = request.form.get('remember_me', 'off')
+            status = login_check(username, password, remember)
+            if status == SUCCESS:
+                #user = request.form['nm']
+                
+                return redirect('/')
+            else:
+                return render_template('login.html')
+        elif form_type == 'register':  # Handle registration form
+            username = request.form['username']
+            password = request.form['password']
+            sec_quest_id = request.form['security_question']
+            security_answer = request.form['security_answer']
+            status = register_check(username, password, sec_quest_id, security_answer)
+            
+            if status == EXIT:
+                flash("Username already exists. Please try another or try logging in.")
+                logger.info("FLASH")
+                return redirect('/login')
+            
+            if status != FAILURE:
+                # Successful register, you can redirect the user to the login page or any other page
+                return redirect('/login')
+    else:
+        return render_template('login.html', questions=security_questions)  # Create an HTML template for the login page
+    
+def login_check(username, password, remember='off') -> int:
+    """System login.
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+    Returns:
+        0 for successful.
+        1 for failure.
+    """
+    logger.info("Login. Getting user input")
+
+    try:
+        cursor = conn.cursor(dictionary=True)  # Configure the cursor
+        # collect usernames and passwords
+        user_search = "SELECT username, password, id FROM users WHERE username=%s"
+        logger.info("Collect username and password")
+        cursor.execute(user_search, (username,)) 
+        result = cursor.fetchone()
+        logger.info(f"Username: {result['username']}, Password Hash: {result['password']}")
+                
+        if result['username']:
+            stored_password = result['password']  # Retrieved from DB as a string
+            if checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                logger.info(f"{username} is a member.")
+                user = User(str(result['id']), username)
+                if remember == 'on':
+                    login_user(user, remember=True, duration=timedelta(days=1)) # Keeps user logged in for one day
+                    logger.info("User logged in. Remember Me True.")
+                else:
+                    login_user(user) # User will be logged out when browser is closed
+                    logger.info("User logged in. Remember Me False.")
+                
+                
+                cursor.close()
+                
+                return SUCCESS
+            else:
+                logger.error("Pw doesn't match. Execution halt.")
+                return FAILURE
+        else:
+            logger.error("Username doesn't match. Execution halt.")
+            return FAILURE
+    
+    except mysql.connector.Error as err:
+        logger.error("Pw/Username doesn't exist. Execution halt.")
+        logger.error(f"Execution halt {err}")
+
+        return FAILURE
+
+# @app.route('/register', methods=['GET', 'POST'])
+# def register():
+#     if request.method == 'POST':
+#         username = request.form['username']
+#         password = request.form['password']
+#         sec_quest_id = request.form['security_question']
+#         security_answer = request.form['security_answer']
+#         status = register_check(username, password, sec_quest_id, security_answer)
+        
+#         if status == FAILURE:
+#             flash("Username already exists. Please try another or try logging in.")
+#             logger.info("FLASH : Username already exists. Please try another or try logging in.")
+#             return redirect('/register')
+        
+#         if status != FAILURE:
+#             # Successful register, you can redirect the user to the login page or any other page
+#             return redirect('/login')
+#     return render_template('register.html', questions=security_questions)
+
+def register_check(username, password, sec_quest_id, security_answer) -> str:
+    logger.info("Gathering username.")
+    
+    logger.info("Gathering cursor.")
+    #cursor = conn.cursor()
+    
+    logger.info("CHECKING USERNAME TO SEE IF ALREADY EXISTS.")
+    cursor.execute("SELECT username FROM users WHERE username=%s", (username,))
+    result = cursor.fetchone()
+    if result != None:
+        logger.info("USERNAME ALR EXISTS AND THUS WE ARE NOT REGISTERING.")
+        return EXIT
+    
+    # first, hash the password for the user before storing
+    logger.info("Hashing user password.")
+    hashed_pw = hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+    insert_user = "INSERT INTO users (username, password, security_question_id, security_answer, created_at) VALUES (%s, %s, %s, %s, NOW())"
+    user_data = (username, hashed_pw, sec_quest_id, security_answer)
+
+    # execute and commit
+    try:
+        logger.info("Insert new user into the database.")
+
+        cursor.execute(insert_user, user_data)
+        cursor.close()
+        conn.commit()
+        
+    except mysql.connector.Error as err:
+        logger.error(f"Failed to insert: {err}")
+        return 'FAILURE'
+    
+    logger.info("User created.")
+    return 'SUCCESS'
+
+@app.route('/forgot', methods=['GET', 'POST'])
+def forgot():
+    security_question = None
     if request.method == 'POST':
         username = request.form['username']
-        password = request.form['password']
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists.')
-            return redirect(url_for('register'))
+        action = request.form.get('action')
+        logger.info(f"Username received: {username}")
+        
+        try:
+            # Establish a new connection for this request
+            local_conn = mysql.connector.connect(
+                user="root",
+                password=os.environ.get("mariadbpassword"),
+                host="127.0.0.1",
+                port=3306,
+                database="reelvibes"
+            )
+            cursor = local_conn.cursor()
+            
+            # Handle fetching the security question
+            if action == 'fetch_question':
+                find_sec_Q = "SELECT security_question_id FROM users WHERE username = %s"
+                cursor.execute(find_sec_Q, (username,))
+                sec_Q = cursor.fetchone()
+                
+                if sec_Q:
+                    question_id = sec_Q[0]
+                    security_question = security_questions.get(question_id, "Unknown security question")
+                else:
+                    flash("User not found", "error")
+                    return render_template('forgot.html', title='Forgot')
+            
+            # Handle security answer submission
+            elif action == 'submit_answer':
+                # First, get the security question again to display it
+                find_sec_Q = "SELECT security_question_id FROM users WHERE username = %s"
+                cursor.execute(find_sec_Q, (username,))
+                sec_Q = cursor.fetchone()
+                
+                if sec_Q:
+                    question_id = sec_Q[0]
+                    security_question = security_questions.get(question_id, "Unknown security question")
+                    
+                    # Now handle the security answer
+                    security_answer = request.form['security_answer']
+                    if security_answer:
+                        find_sec_Q_answer = "SELECT security_answer FROM users WHERE username = %s"
+                        cursor.execute(find_sec_Q_answer, (username,))
+                        stored_sec_Q_answer = cursor.fetchone()
+                        
+                        if stored_sec_Q_answer and stored_sec_Q_answer[0] == security_answer:
+                            return redirect(url_for('reset', username=username))
+                        else:
+                            flash("Wrong security question answer, please try again.", "error")
+                    else:
+                        flash("Please provide a security answer.", "error")
+                else:
+                    flash("User not found", "error")
+                    
+        except mysql.connector.Error as err:
+            logger.error(f"Failed to find security question: {err}")
+            flash("Failed to find security question. Ensure user exists.")
+            
+        finally:
+            if 'cursor' in locals() and cursor:
+                cursor.close()
+            if conn.is_connected():
+                conn.close()
+                
+    return render_template('forgot.html', title='Forgot', security_question=security_question)
+
+@app.route('/reset', methods=['GET', 'POST']) #Reset Password Page
+def reset():
+    username = request.args.get('username')  # Retrieve username from query string
+    if request.method == 'POST':
+        newPassword = request.form["newPassword"]
+        confirmPassword = request.form["confirmPassword"]
+        if newPassword == confirmPassword:
+            logger.info("Confirmed password match.")
+            local_conn = mysql.connector.connect(
+                user="root",
+                password=os.environ.get("mariadbpassword"),
+                host="127.0.0.1",
+                port=3306,
+                database="reelvibes"
+            )
+            cursor = local_conn.cursor()
+            hashedNewPassword = hashpw(newPassword.encode('utf-8'), gensalt()).decode('utf-8')
+            resetPasswordQuery = "UPDATE users SET password = %s WHERE username = %s;"
+            try: 
+                cursor.execute(resetPasswordQuery, (hashedNewPassword, username))
+                cursor.close()
+                conn.commit()
+                find_user_id = "SELECT id FROM users WHERE username = %s"
+                cursor.execute(find_user_id, (username,))
+                local_conn.commit()
+                logger.info("Password update in database.")
+                user_id = cursor.fetchone()
+                if user_id:  # Ensure user exists
+                    logger.info(f"User found with ID: {user_id['id']}")
+                    user = User(str(user_id['id']), username)
+                    login_user(user)
+                    logger.info("User logged in after password reset.")
+                    return redirect(url_for('/'))
+                else:
+                    logger.error("User not found after password update.")
+                    flash("User not found. Please try again.", "error")
+                    return redirect(url_for('reset', username=username))
+            except: 
+                logger.error("Failed to execute new password update.")
+                flash("Failed to execute new password update. Try Again")
+                return redirect(url_for('reset', username=username))
         else:
-            hashed_password = hashpw(password.encode('utf-8'), gensalt())
-            new_user = User(username=username, password=hashed_password.decode('utf-8'))
-            db.session.add(new_user)
-            db.session.commit()
-            return redirect(url_for('login'))
-    return render_template('register.html')
+            logger.error("Passwords do not match")
+            flash("Passwords do not match. Try Again.")
+            return redirect(url_for('reset', username=username))
+            
+    return render_template('reset.html', title='Reset', username=username)
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+@app.route('/recommend')
+@login_required
+def recommend():
+    return redirect(url_for('choose_service'))
+    #return render_template('recommend.html', title='Recommendations')
+
+
+
+@app.route('/choose_service', methods=['GET', 'POST'])
+def choose_service():
+    session.pop('temp_list', None)
+    session['temp_list'] = {"service": [], "genres": [], "rating": [], "year": []}
+    
+    if request.method == 'POST':
+        service = None
+        
+        if 'button_id' in request.form:
+            service = request.form['button_id']
+        
+        if not service:
+            service = request.form.get('button_id')
+        
+        if not service:
+            for key, value in request.form.items():
+                if key.startswith('button_id'):
+                    service = value
+                    break
+
+        #service = request.form.get('button_id', "all_button")
+        if service:
+            session['temp_list']['service'] = [service]
+            session.modified = True
+            logger.info(f"temp list: {session['temp_list']}")
+            return redirect(url_for('genre_selection'))
+        else:
+            logger.error("Failed to find streaming service.")
+            flash("Failed to find streaming service. Try Again")
+            
+    return render_template('choose_service.html', title='Choose Service')
+
+@app.route('/genre_selection', methods=['GET', 'POST'])
+def genre_selection():
+    if request.method == 'POST':
+        if 'temp_list' in session:
+            selected_genres = request.form.get('selected_genres', '')
+            genre_list = selected_genres.split(',') if selected_genres else []
+            session['temp_list']['genres'] = genre_list
+            session.modified = True
+            logger.info(f"temp list: {session['temp_list']}")
+            
+            if 'done_button' in request.form:
+                return redirect(url_for('age_range'))
+
+    return render_template('genre_selection.html')  # Template for the genre selection page
+    
+@app.route('/Age_range.html', methods=['GET', 'POST'])
+def age_range():
+    if request.method == 'POST':
+        if 'temp_list' in session:
+            selected_ratings = request.form.get('selected_ratings', '')
+            ratings_list = selected_ratings.split(',') if selected_ratings else []
+            session['temp_list']['rating'] = ratings_list
+            session.modified = True
+            logger.info(f"temp list: {session['temp_list']}")
+            
+            if 'done_button' in request.form:
+                return redirect(url_for('year_of_release'))
+            
+    return render_template('Age_range.html')
+
+@app.route('/year_of_release.html', methods=['GET', 'POST'])
+def year_of_release():
+    start_year = request.form.get('start_year')
+    try:
+        start_year = int(start_year) if start_year else None
+    except ValueError:
+        start_year = None
+    
+    # If temp_list exists in session, update it
+    if 'temp_list' in session:
+        years = [start_year, datetime.datetime.now().year]
+        # Add the selected year to the temp list
+        if start_year:
+            session['temp_list']['year'] = years
+            session.modified = True
+            logger.info(f"Updated temp list: {session['temp_list']}")
+            return redirect(url_for('movie_selection'))
+        
+    return render_template('year_of_release.html')
+
+@app.route('/movie_selection.html', methods=['GET', 'POST'])
+def movie_selection():
+    # Get query parameters
+    service_ids = [service_mapping(service) for service in session['temp_list']['service']]
+    genre_ids = [genre_mapping(genre) for genre in session['temp_list']['genres']]
+    provider = ",".join(str(sid) for sid in service_ids if sid)    
+    genre = ",".join(str(gid) for gid in genre_ids if gid)  # Combine genre IDs into a single string
+    age = session['temp_list']['rating'][0]
+    start_year = session['temp_list']['year']
+    
+    fetch_tmdb_movie(service_id, genre_id, age, start_year)
+    age = request.args.get('age', 'All')  # Default to 'All' if no age is provided
+    start_year = request.args.get('start_year', 1954)  # Default to 1954 if no start year is provided
+    
+    # You can pass these parameters to the template for further use
+    return render_template('movie_selection.html', age=age, start_year=start_year)
 
 # ---- MOVIE API ENDPOINT ------
 def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
@@ -145,10 +552,11 @@ def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
         "language": "en-US",
         "sort_by": "popularity.desc",
         "page": 1,
+        "watch_region": "US"
     }
 
     if provider:
-        params["watch_provider"] = provider
+        params["with_watch_providers"] = provider
     if genre:
         params["with_genres"] = genre
     if rating:
@@ -156,7 +564,6 @@ def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
     if year_range and len(year_range) == 2:
         params["primary_release_date.gte"] = f"{year_range[0]}-01-01"
         params["primary_release_date.lte"] = f"{year_range[1]}-12-31"
-
 
     try:
         # Make the request to the TMDb API
@@ -166,9 +573,40 @@ def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from TMDb API: {e}")
         return None
+
+# Service Mapping
+def service_mapping(provider):
+    url = "https://api.themoviedb.org/3/watch/providers/movie?language=en-US"
+
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {BEARER_TOKEN}"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        if provider == "netflix-button":
+            provider = "netflix" 
+        elif provider == "hulu-button":
+            provider = "hulu" 
+        elif provider == "third-party-button":
+            omit_provider = "netflix, hulu"
+        elif provider == "all-button":
+            provider = ""
+        else:
+            print(f"Error fetching service: {e}")
+            return None
+        
+        # Map provider names to their IDs
+        provider_mapping = {provider['provider_name'].lower(): provider['provider_id'] for provider in data['results']}
+        return provider_mapping, omit_provider
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching service: {e}")
+        return None
     
-# Map movie genre to ID
-def genre_mapping():
+def genre_mapping(genre):
     url = "https://api.themoviedb.org/3/genre/movie/list?language=en"
 
     headers = {
@@ -187,87 +625,11 @@ def genre_mapping():
         print(f"Error fetching genres: {e}")
         return None
 
-@app.route('/genre_selection', methods=['GET'])
-def genre_selection():
-    service = request.args.get('service')  # Get the selected service from the query string
-    print(f"Selected Service: {service}")  # Debugging output
-    return render_template('genre_selection.html', service=service)
-
-# Service Mapping
-def service_mapping():
-    url = "https://api.themoviedb.org/3/watch/providers/movie?language=en-US"
-
-    headers = {
-        "accept": "application/json",
-        "Authorization": f"Bearer {BEARER_TOKEN}"
-    }
-
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-
-        # Map provider names to their IDs
-        provider_mapping = {provider['provider_name'].lower(): provider['provider_id'] for provider in data['results']}
-        return provider_mapping
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching service: {e}")
-        return None
-    
-@app.route('/choose_service', methods=['GET'])
-def choose_service():
-    service = request.args.get('service')
-    print (f"Selected Service: {service}")
-    return render_template('choose_service.html')
-
-# -- Age Rating---
-
-@app.route('/Age_range.html', methods=['GET'])
-def age_range():
-    service = request.args.get('service')
-    genres = request.args.get('genres')
-
-    print(f"Service: {service}")
-    print(f"Genre: {genres}")
-    return render_template('Age_range.html', service=service, genres=genres)
-
-# --- ----
-
-@app.route('/recommend')
-@login_required
-def recommend():
-    return render_template('recommend.html', title='Recommendations')
-
-
-@app.route('/year_of_release.html')
-def year_of_release():
-    age = request.args.get('age', 'All')  # Default to 'All' if no parameter is provided
-    return render_template('year_of_release.html', age=age)
-
-@app.route('/movie_selection.html')
-def movie_selection():
-    # Get query parameters for age and start year
-    age = request.args.get('age', 'All')  # Default to 'All' if no age is provided
-    start_year = request.args.get('start_year', 1954)  # Default to 1954 if no start year is provided
-    
-    # You can pass these parameters to the template for further use
-    return render_template('movie_selection.html', age=age, start_year=start_year)
-
 @app.route('/random_movie')
 def random_movie():
     return render_template('random_movie.html')
 
 
-if __name__ == "__main__":
-    provider = "8"  # Example: Netflix (use the actual ID for Netflix)
-    genre = "28"  # Example: Action (use the genre ID for Action)
-    min_rating = 7.0  # Minimum rating of 7.0
-    year_range = (2000, 2020)  # Movies from 2000 to 2020
 
-    movies = fetch_tmdb_movie(provider, genre, min_rating, year_range)
-    if movies:
-        for movie in movies.get("results", []):
-            print(f"{movie['title']} ({movie['release_date']}) - Rating: {movie['vote_average']}")
-    with app.app_context():
-        db.create_all()
-    app.run()
+if __name__ == "__main__":
+    app.run(debug=True)
