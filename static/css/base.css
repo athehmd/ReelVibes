@@ -7,7 +7,9 @@
 
 /* Base Styles */
 body {
-    background: url('/static/images/movie_background.jpg') no-repeat center center fixed;
+    background: url('/static/images/movie_background.jpg') no-repeat;
+    background-color: rgba(90, 2, 90, 0.5);
+    background-blend-mode: multiply; 
     background-size: cover;
     color: #ffffff;
     font-family: 'Arial', sans-serif;
@@ -17,16 +19,6 @@ body {
 }
 
 /* Dark overlay for background */
-body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: -1; /* Ensures the overlay stays behind other content */
-}
 
 /* Custom Header Styling */
 .custom-header {
@@ -38,7 +30,6 @@ body::before {
     top: 0;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.4);
     z-index: 2;
 }
 

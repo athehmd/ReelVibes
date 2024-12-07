@@ -14,7 +14,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: url(movie_background.jpg) no-repeat;
+  background: url('/static/images/movie_background.jpg') no-repeat;
   background-color: rgba(90, 2, 90, 0.5);
   background-blend-mode: multiply; 
   background-size: cover;

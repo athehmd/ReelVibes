@@ -1,0 +1,8 @@
+2024-12-02 15:08:43,422 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-02 15:08:43,422 - ERROR - cursor is none
+2024-12-02 15:08:43,694 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-02 15:08:43,694 - ERROR - cursor is none
+2024-12-03 12:28:33,764 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-03 12:28:33,764 - ERROR - cursor is none
+2024-12-03 12:37:15,182 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-03 12:37:15,182 - ERROR - cursor is none
