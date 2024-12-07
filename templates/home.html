@@ -16,8 +16,8 @@
     <!-- BOX ICONS -->
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
     <!-- APP CSS -->
-    <link rel="stylesheet" href="home-grid.css">
-    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="static/css/home-grid.css">
+    <link rel="stylesheet" href="static/css/home.css">
 </head>
 
 <body>
@@ -26,9 +26,9 @@
     <header>
         <h2 class="logo">REELVIBES</h2>
         <nav class="navigation">
-            <a href="home.html"> HOME </a>
-            <a href="#">RECOMMEND</a>
-            <a href="login.html"> LOGIN </a>
+            <a href="{{ url_for('home') }}">HOME</a>
+            <a href="{{ url_for('recommend') }}">RECOMMEND</a>
+            <a href="{{ url_for('login') }}">LOGIN</a>
         </nav>
     </header>
     <!-- END NAV -->
@@ -40,7 +40,7 @@
             <div class="owl-carousel carousel-nav-center" id="hero-carousel">
                 <!-- SLIDE ITEM -->
                 <div class="hero-slide-item">
-                    <img src="./images/black-banner.png" alt="">
+                    <img src="static/images/black-banner.png" alt="">
                     <div class="overlay"></div>
                     <div class="hero-slide-item-content">
                         <div class="item-content-wraper">
@@ -69,7 +69,7 @@
                 <!-- END SLIDE ITEM -->
                 <!-- SLIDE ITEM -->
                 <div class="hero-slide-item">
-                    <img src="./images/pulp-fiction.png" alt="">
+                    <img src="static/images/pulp-fiction.png" alt="">
                     <div class="overlay"></div>
                     <div class="hero-slide-item-content">
                         <div class="item-content-wraper">
@@ -98,7 +98,7 @@
                 <!-- END SLIDE ITEM -->
                 <!-- SLIDE ITEM -->
                 <div class="hero-slide-item">
-                    <img src="./images/tokyo-drift-banner.jpeg" alt="">
+                    <img src="static/images/tokyo-drift-banner.jpeg" alt="">
                     <div class="overlay"></div>
                     <div class="hero-slide-item-content">
                         <div class="item-content-wraper">
@@ -133,7 +133,7 @@
             <div class="owl-carousel" id="top-movies-slide">
                 <!-- MOVIE ITEM -->
                 <div class="movie-item">
-                    <img src="./images/tokyo-drift.jpeg" alt="">
+                    <img src="static/images/tokyo-drift.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             The Fast and the Ferious: Tokyo Drift
@@ -156,7 +156,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <div class="movie-item">
-                    <img src="./images/dune.jpeg" alt="">
+                    <img src="static/images/dune.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Dune: Part Two
@@ -179,7 +179,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <div class="movie-item">
-                    <img src="./images/oppenheimer.jpeg" alt="">
+                    <img src="static/images/oppenheimer.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Oppenheimer
@@ -202,7 +202,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <div class="movie-item">
-                    <img src="./images/maharaja.jpeg" alt="">
+                    <img src="static/images/maharaja.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Maharaja
@@ -225,7 +225,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <div class="movie-item">
-                    <img src="./images/wild-robot.jpeg" alt="">
+                    <img src="static/images/wild-robot.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             The Wild Robot
@@ -248,7 +248,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <div class="movie-item">
-                    <img src="./images/inside.jpeg" alt="">
+                    <img src="static/images/inside.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Inside Out 2
@@ -284,7 +284,7 @@
             <div class="movies-slide carousel-nav-center owl-carousel">
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/moana2.jpg" alt="">
+                    <img src="static/images/moana2.jpg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Moana 2
@@ -307,7 +307,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/wicked.jpeg" alt="">
+                    <img src="static/images/wicked.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Wicked
@@ -330,7 +330,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/venom.jpeg" alt="">
+                    <img src="static/images/venom.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Venom
@@ -353,7 +353,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/y2k.jpeg" alt="">
+                    <img src="static/images/y2k.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Y2K
@@ -376,7 +376,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/red-one.jpeg" alt="">
+                    <img src="static/images/red-one.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Red One
@@ -399,7 +399,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/gladiator2.jpeg" alt="">
+                    <img src="static/images/gladiator2.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Gladiator II
@@ -422,7 +422,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/dear-santa.jpeg" alt="">
+                    <img src="static/images/dear-santa.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Dear Santa
@@ -456,7 +456,7 @@
             <div class="movies-slide carousel-nav-center owl-carousel">
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/moana2.jpg" alt="">
+                    <img src="static/images/moana2.jpg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Moana 2
@@ -479,7 +479,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/wild-robot.jpeg" alt="">
+                    <img src="static/images/wild-robot.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             The Wild Robot
@@ -502,7 +502,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/spellbound.jpeg" alt="">
+                    <img src="static/images/spellbound.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Spellbound
@@ -525,7 +525,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/transformersone.jpeg" alt="">
+                    <img src="static/images/transformersone.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Transformers One
@@ -548,7 +548,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/flow.jpeg" alt="">
+                    <img src="static/images/flow.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Flow
@@ -571,7 +571,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/despicableme.jpeg" alt="">
+                    <img src="static/images/despicableme.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Despicable Me 4
@@ -594,7 +594,7 @@
                 <!-- END MOVIE ITEM -->
                 <!-- MOVIE ITEM -->
                 <a href="#" class="movie-item">
-                    <img src="./images/aot.jpeg" alt="">
+                    <img src="static/images/aot.jpeg" alt="">
                     <div class="movie-item-content">
                         <div class="movie-item-title">
                             Attack on Titan the Movie: The Last Attack
@@ -623,7 +623,7 @@
     <!-- SPECIAL MOVIE SECTION -->
     <div class="section">
         <div class="hero-slide-item">
-            <img src="./images/transformer-banner.jpg" alt="">
+            <img src="static/images/transformer-banner.jpg" alt="">
             <div class="overlay"></div>
             <div class="hero-slide-item-content">
                 <div class="item-content-wraper">
@@ -664,7 +664,7 @@
     <!-- OWL CAROUSEL -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js" integrity="sha512-bPs7Ae6pVvhOSiIcyUClR7/q2OAsRiovw4vAkX+zJbw3ShAeeqezq50RIIcIURq7Oa20rW2n2q+fyXBNcU9lrw==" crossorigin="anonymous"></script>
     <!-- APP SCRIPT -->
-    <script src="home.js"></script>
+    <script src="static/JS/home.js"></script>
 
 </body>
 
