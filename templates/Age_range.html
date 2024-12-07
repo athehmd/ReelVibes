@@ -4,33 +4,80 @@
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Age Range Selection</title>
     <style>
-        .age-range-container {
-            position: relative;
-            width: 100%;
+        /* Base Container */
+        .age-selection-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             height: 100vh;
-            background-size: cover;
-            background-position: center;
+            text-align: center;
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+            margin-top: 50px;
         }
 
-        .age-button {
+        /* Title and Subtitle */
+        .age-title {
             position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
             font-family: 'Arial', sans-serif;
-            /* Same font */
-            font-size: 28px;
-            /* Same size */
+            font-size: 36px;
             font-weight: bold;
+            color: #FFFFFF;
+            text-align: center;
+            background: rgba(90, 2, 90, 0.8);
+            margin-top: 80px; /* Increased spacing from the top */
+            padding: 30px 40px; /* Added more padding inside the title box */
+            border-radius: 12px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .age-title:hover {
+            background-color: #9c27b0;
+            border-color: #ffffff;
+        }
+
+        /* Subtitle within the same box styling */
+        .age-subtitle {
+            font-size: 18px;
+            /* Slightly smaller font for subtitle */
+            color: rgba(255, 255, 255, 0.8);
+            /* Slightly lighter color */
+            display: block;
+            /* Stacks below the title */
+            margin-top: 5px;
+            /* Small gap from main title */
+            font-weight: normal;
+        }
+
+        /* Buttons Container */
+        .age-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px; /* Increased gap between buttons */
+            margin-top: 30px; /* Added space above the button container */
+            justify-content: center;
+        }
+
+        /* Individual Buttons */
+        .age-button {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            font-size: 1.2em;
             color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            width: 229px;
-            height: 194px;
-            background-color: rgba(128, 0, 128, 0.5);
+            background-color: rgba(90, 2, 90, 0.7);
             border: 2px solid #D9D9D9;
             border-radius: 8px;
             display: flex;
@@ -38,95 +85,209 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-        }
-
-        .age-range-question {
-            position: fixed;
-            top: 122px;
-            left: 545px;
-            width: 250px;
-            height: 45px;
-            text-align: center;
-            font-family: 'Arial', sans-serif;
-            font-size: 28px;
-            color: #ffffff;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-            background: rgba(90, 2, 90, 0.7);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid #D9D9D9;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .age-range-question:hover {
-            background-color: #9c27b0;
-            /* Lighter purple on hover for visual feedback */
-            border-color: #ffffff;
-            /* White border on hover to enhance the effect */
-        }
-
-        /* Position and styles for each button */
-        .age-button[data-age="G"] {
-            left: 292px;
-            top: 292px;
-            background-color: rgba(128, 0, 128, 0.5);
-            font-size: 28px;
-        }
-
-        .age-button[data-age="PG"] {
-            left: 871px;
-            top: 292px;
-            background-color: rgba(128, 0, 128, 0.5);
-            font-size: 28px;
-            /* Large enough size for visibility */
-
-        }
-
-        .age-button[data-age="PG-13"] {
-            left: 292px;
-            top: 528px;
-            background-color: rgba(128, 0, 128, 0.5);
-            font-size: 28px;
-            /* Large enough size for visibility */
-
-        }
-
-        .age-button[data-age="18+"] {
-            left: 871px;
-            top: 528px;
-            background-color: rgba(128, 0, 128, 0.5);
-            font-size: 28px;
-            /* Large enough size for visibility */
-
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply;
+            margin-bottom: 15px; /* Added spacing below each button for better alignment */
         }
 
         .age-button:hover {
-            transform: scale(1.05);
-            background-color: #9c27b0;
-            /* Lighter purple on hover for visual feedback */
+            background-color: rgba(255, 255, 255, 0.3);
             border-color: #ffffff;
-            /* White border on hover to enhance the effect */
+            transform: scale(1.1);
+        }
+
+        .age-button.selected {
+            background-color: #9c27b0;
+            border-color: #ffffff;
+        }
+
+        .age-tick {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            font-size: 1.5em;
+            color: #ffc107;
+            display: none;
+        }
+
+        .age-button.selected .age-tick {
+            display: inline;
+        }
+
+        /* Add background images for each age button */
+        #g-button {
+            background-color: rgba(0, 0, 0, 0.7); /* Background color */
+            color: #ffffff; /* Text color */
+            font-size: 2em; /* Font size for the letter */
+            font-weight: bold; /* Bold text */
+            text-align: center; /* Center the text */
+            border: 2px solid #D9D9D9; /* Button border */
+            border-radius: 8px; /* Rounded corners */
+            width: 150px; /* Button width */
+            height: 150px; /* Button height */
+            display: flex; /* Flex layout to center the text */
+            align-items: center; /* Vertically center the text */
+            justify-content: center; /* Horizontally center the text */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        #pg-button {
+            background-color: rgba(0, 0, 0, 0.7); /* Background color */
+            color: #ffffff; /* Text color */
+            font-size: 2em; /* Font size for the letter */
+            font-weight: bold; /* Bold text */
+            text-align: center; /* Center the text */
+            border: 2px solid #D9D9D9; /* Button border */
+            border-radius: 8px; /* Rounded corners */
+            width: 150px; /* Button width */
+            height: 150px; /* Button height */
+            display: flex; /* Flex layout to center the text */
+            align-items: center; /* Vertically center the text */
+            justify-content: center; /* Horizontally center the text */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+        #pg-13-button {
+            background-color: rgba(0, 0, 0, 0.7); /* Background color */
+            color: #ffffff; /* Text color */
+            font-size: 2em; /* Font size for the letter */
+            font-weight: bold; /* Bold text */
+            text-align: center; /* Center the text */
+            border: 2px solid #D9D9D9; /* Button border */
+            border-radius: 8px; /* Rounded corners */
+            width: 150px; /* Button width */
+            height: 150px; /* Button height */
+            display: flex; /* Flex layout to center the text */
+            align-items: center; /* Vertically center the text */
+            justify-content: center; /* Horizontally center the text */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+
+        #r-button {
+            background-color: rgba(0, 0, 0, 0.7); /* Background color */
+            color: #ffffff; /* Text color */
+            font-size: 2em; /* Font size for the letter */
+            font-weight: bold; /* Bold text */
+            text-align: center; /* Center the text */
+            border: 2px solid #D9D9D9; /* Button border */
+            border-radius: 8px; /* Rounded corners */
+            width: 150px; /* Button width */
+            height: 150px; /* Button height */
+            display: flex; /* Flex layout to center the text */
+            align-items: center; /* Vertically center the text */
+            justify-content: center; /* Horizontally center the text */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+            background-blend-mode: multiply;
+            background-size: cover;
+            background-position: center;
+        }
+
+
+        /* Select All and Done Buttons */
+        .age-actions button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: rgba(90, 2, 90, 0.7);
+            border: 2px solid #D9D9D9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            margin-top: 30px; /* Added more spacing above action buttons */
+            margin-right: 20px; /* Increased spacing between the buttons */
+        }
+
+        .age-actions button:hover {
+            background-color: #9c27b0;
+            border-color: #ffffff;
+        }
+
+        #done-button:disabled {
+            background-color: #555;
+            border-color: #888;
+            cursor: not-allowed;
+            opacity: 0.6;
         }
     </style>
 </head>
 
 <body>
     <div class="age-range-container">
-        <h2 class="age-range-question">Age Range</h2>
-        <button class="age-button" data-age="G" onclick="navigateToYear('G')">G</button>
-        <button class="age-button" data-age="PG" onclick="navigateToYear('PG')">PG</button>
-        <button class="age-button" data-age="PG-13" onclick="navigateToYear('PG-13')">PG-13</button>
-        <button class="age-button" data-age="18+" onclick="navigateToYear('18+')">18+</button>
+        <h2 class="age-range-question">Rating</h2>
+            <span class="age-subtitle">Select all that apply</span>
+        </h2>
+        <form method="POST" action="/Age_range.html">
+            <div class="age-buttons">
+                <button id="g-button" name="rating" value="G" type="button" class="age-button" onclick="toggleSelection(this)">
+                    G
+                    <span class="age-tick">✔</span>
+                </button>
+                <button id="pg-button" name="rating" value="PG" type="button" class="age-button" onclick="toggleSelection(this)">
+                    PG
+                    <span class="age-tick">✔</span>
+                </button>
+                <button id="pg-13-button" name="rating" value="PG13" type="button" class="age-button" onclick="toggleSelection(this)">
+                    PG-13
+                    <span class="age-tick">✔</span>
+                </button>
+                <button id="r-button" name="rating" value="R" type="button" class="age-button" onclick="toggleSelection(this)">
+                    R
+                    <span class="age-tick">✔</span>
+                </button>
+            </div>
+    
+            <div class="age-actions">
+                <button id="select-all-button" type="button" onclick="selectAllRatings()">Select All</button>
+                <input type="hidden" name="selected_ratings" id="selected-ratings">
+                <button id="done-button" name="done_button" type="submit">Done</button>
+            </div>
+        </form>
     </div>
-
-
-
-
+    
     {% block scripts %}
-    <script src="/static/js/age_range.js"></script>
-
+    <script>
+        function toggleSelection(button) {
+            button.classList.toggle('selected');
+            const tick = button.querySelector('.age-tick');
+            if (tick) tick.style.display = button.classList.contains('selected') ? 'inline' : 'none';
+        }
+    
+        function selectAllRatings() {
+            const buttons = document.querySelectorAll('.age-button');
+            buttons.forEach(button => {
+                if (!button.classList.contains('selected')) {
+                    button.classList.add('selected');
+                    const tick = button.querySelector('.age-tick');
+                    if (tick) tick.style.display = 'inline';
+                }
+            });
+        }
+    
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const selected = Array.from(document.querySelectorAll('.age-button.selected'))
+                .map(button => button.value);
+            document.getElementById('selected-ratings').value = selected.join(',');
+        });
+    </script>
+    <!--<script src="/static/js/age_range.js"></script>-->
     {% endblock %}
-
 </body>
 
 </html>

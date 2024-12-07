@@ -200,43 +200,68 @@
             Genre
             <span class="genre-subtitle">Select all that apply</span>
         </h2>
-
-        <div class="genre-buttons">
-            <button id="drama-button" class="genre-button" onclick="toggleSelection(this)">
-                Drama
-                <span class="genre-tick">✔</span>
-            </button>
-            <button id="horror-button" class="genre-button" onclick="toggleSelection(this)">
-                Horror
-                <span class="genre-tick">✔</span>
-            </button>
-            <button id="action-button" class="genre-button" onclick="toggleSelection(this)">
-                Action
-                <span class="genre-tick">✔</span>
-            </button>
-            <button id="comedy-button" class="genre-button" onclick="toggleSelection(this)">
-                Comedy
-                <span class="genre-tick">✔</span>
-            </button>
-            <button id="animation-button" class="genre-button" onclick="toggleSelection(this)">
-                Animation
-                <span class="genre-tick">✔</span>
-            </button>
-            <button id="romance-button" class="genre-button" onclick="toggleSelection(this)">
-                Romance
-                <span class="genre-tick">✔</span>
-            </button>
-        </div>
-
-        <div class="genre-actions">
-            <button id="select-all-button" onclick="selectAllGenres()">Select All</button>
-            <button id="done-button" onclick="goToAgeRangePage()" disabled>Done</button>
-        </div>
+        <form method="POST" action="/genre_selection">
+            <div class="genre-buttons">
+                <button id="drama-button" name="genres" value="drama" type="button" class="genre-button" onclick="toggleSelection(this)">
+                    Drama
+                    <span class="genre-tick">✔</span>
+                </button>
+                <button id="horror-button" name="genres" value="horror" type="button" class="genre-button" onclick="toggleSelection(this)">
+                    Horror
+                    <span class="genre-tick">✔</span>
+                </button>
+                <button id="action-button" name="genres" value="action" type="button" class="genre-button" onclick="toggleSelection(this)">
+                    Action
+                    <span class="genre-tick">✔</span>
+                </button>
+                <button id="comedy-button" name="genres" value="comedy" type="button" class="genre-button" onclick="toggleSelection(this)">
+                    Comedy
+                    <span class="genre-tick">✔</span>
+                </button>
+                <button id="animation-button" name="genres" value="animation" type="button" class="genre-button" onclick="toggleSelection(this)">
+                    Animation
+                    <span class="genre-tick">✔</span>
+                </button>
+                <button id="romance-button" name="genres" value="romance" type="button" class="genre-button" onclick="toggleSelection(this)">
+                    Romance
+                    <span class="genre-tick">✔</span>
+                </button>
+            </div>
+    
+            <div class="genre-actions">
+                <button id="select-all-button" type="button" onclick="selectAllGenres()">Select All</button>
+                <input type="hidden" name="selected_genres" id="selected-genres">
+                <button id="done-button" name="done_button" type="submit">Done</button>
+            </div>
+        </form>
     </div>
-
-
+    
     {% block scripts %}
-    <script src="/static/js/genre_selection.js"></script>
+    <script>
+        function toggleSelection(button) {
+            button.classList.toggle('selected');
+            const tick = button.querySelector('.genre-tick');
+            if (tick) tick.style.display = button.classList.contains('selected') ? 'inline' : 'none';
+        }
+    
+        function selectAllGenres() {
+            const buttons = document.querySelectorAll('.genre-button');
+            buttons.forEach(button => {
+                if (!button.classList.contains('selected')) {
+                    button.classList.add('selected');
+                    const tick = button.querySelector('.genre-tick');
+                    if (tick) tick.style.display = 'inline';
+                }
+            });
+        }
+    
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const selected = Array.from(document.querySelectorAll('.genre-button.selected'))
+                .map(button => button.value);
+            document.getElementById('selected-genres').value = selected.join(',');
+        });
+    </script>
+    <!--<script src="/static/js/genre_selection.js"></script>-->
     {% endblock %}
 </body>
 

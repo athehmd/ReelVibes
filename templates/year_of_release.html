@@ -119,7 +119,11 @@
         <input type="range" id="year-range" min="1950" max="2024" step="1" value="1950">
 
         <!-- Apply Button -->
-        <button id="apply-button" class="apply-button">Apply</button>
+        <form method="POST" action="/year_of_release.html">
+            <input type="hidden" name="start_year" id="start_year">
+            <button id="apply-button" class="apply-button" type="button">Apply</button> <!-- Changed to type="button" -->
+        </form>
+        
     </div>
 
 
