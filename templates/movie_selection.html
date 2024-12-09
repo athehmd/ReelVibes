@@ -125,6 +125,16 @@
         transition: background-color 0.3s;
     }
 
+    .no-movies-message {
+        color: #fff;
+        background-color: rgba(90, 2, 90, 0.7);
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 20px;
+        margin-top: 20px;
+    }
+    
     .more-filters-btn:hover {
         background-color: #7b1fa2;
     }
@@ -135,10 +145,12 @@
         <h1 class="suggestions-title">Movie Suggestions!</h1>
     </div>
 
+    {% if movies %}
+    <!-- Show the slider only if there are movies -->
     <div class="movie-slider">
         <button class="slider-button" id="prev-btn">❮</button>
         <div class="movie-display" id="movie-display">
-            {% for movie in movies %}
+            {% for movie in movies[:6] %}
             <div class="movie-card">
                 <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
                      alt="{{ movie.title }} Poster"
@@ -153,6 +165,12 @@
         </div>
         <button class="slider-button" id="next-btn">❯</button>
     </div>
+    {% else %}
+    <!-- Display message if no movies are found -->
+    <div class="no-movies-message">
+        <p>Sorry, no movies match those parameters.</p>
+    </div>
+    {% endif %}
 
     <button class="more-filters-btn">More Filters</button>
 </div>
