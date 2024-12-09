@@ -592,7 +592,8 @@ def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_ran
         "language": "en-US",
         "sort_by": "popularity.desc",
         "page": 1,
-        "watch_region": "US"
+        "watch_region": "US",
+        "certification_country": "US"
     }
 
     if provider:
