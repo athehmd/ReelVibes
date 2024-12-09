@@ -3,6 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 import logging, datetime
 from bcrypt import hashpw, checkpw, gensalt
 import os
+import dotenv
 import mysql.connector
 import random, requests, typing 
 from typing import Optional
@@ -13,8 +14,11 @@ FAILURE = 1
 EXIT = 2
 SUCCESS = 0
 
+dotenv.load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
+BEARER_TOKEN = os.environ.get('tmdbAPIKEY') # READ TOKEN
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -149,7 +153,7 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template('index.html', title='Home Page')
+    return render_template('home.html', title='Home Page')
 
 @app.route('/movies')
 @login_required
@@ -431,8 +435,7 @@ def logout():
 @app.route('/recommend')
 @login_required
 def recommend():
-    return redirect(url_for('choose_service'))
-    #return render_template('recommend.html', title='Recommendations')
+    return render_template('recommend.html', title='Recommendations')
 
 
 
@@ -492,51 +495,88 @@ def age_range():
             session['temp_list']['rating'] = ratings_list
             session.modified = True
             logger.info(f"temp list: {session['temp_list']}")
-            
-            if 'done_button' in request.form:
-                return redirect(url_for('year_of_release'))
+            # Always redirect to the next step, `year_of_release`
+            return redirect(url_for('year_of_release'))
+            #if 'done_button' in request.form:
+            #    return redirect(url_for('year_of_release'))
             
     return render_template('Age_range.html')
 
 @app.route('/year_of_release.html', methods=['GET', 'POST'])
 def year_of_release():
-    start_year = request.form.get('start_year')
-    try:
-        start_year = int(start_year) if start_year else None
-    except ValueError:
-        start_year = None
-    
-    # If temp_list exists in session, update it
-    if 'temp_list' in session:
-        years = [start_year, datetime.datetime.now().year]
-        # Add the selected year to the temp list
-        if start_year:
-            session['temp_list']['year'] = years
-            session.modified = True
-            logger.info(f"Updated temp list: {session['temp_list']}")
-            return redirect(url_for('movie_selection'))
+    if request.method == 'POST':
+        start_year = request.form.get('start_year')
+        try:
+            start_year = int(start_year) if start_year else None
+        except ValueError:
+            start_year = None
+        
+        # If temp_list exists in session, update it
+        if 'temp_list' in session:
+            if start_year:
+                years = [start_year, datetime.datetime.now().year]
+            else:
+                years = [1950, datetime.datetime.now().year]
+
+        session['temp_list']['year'] = years
+        session.modified = True
+        logger.info(f"temp list after year of release: {session['temp_list']}")
+        return redirect(url_for('movie_selection'))
         
     return render_template('year_of_release.html')
 
 @app.route('/movie_selection.html', methods=['GET', 'POST'])
 def movie_selection():
-    # Get query parameters
-    service_ids = [service_mapping(service) for service in session['temp_list']['service']]
-    genre_ids = [genre_mapping(genre) for genre in session['temp_list']['genres']]
-    provider = ",".join(str(sid) for sid in service_ids if sid)    
-    genre = ",".join(str(gid) for gid in genre_ids if gid)  # Combine genre IDs into a single string
-    age = session['temp_list']['rating'][0]
+    # Extract service_ids (from providers)
+    service_ids = [
+        id_ for service in session['temp_list']['service']
+        if (result := service_mapping(service)) is not None
+        for id_ in (result[0] or {}).values()  # Extract values from the 'providers' dictionary
+    ]
+    # Extract omit IDs as a flat list of integers
+    omit_ids = [
+        id_ for service in session['temp_list']['service']
+        if (result := service_mapping(service)) is not None and result[1]  # Check for non-None 'omits'
+        for id_ in result[1].values()  # Extract values from the 'omits' dictionary
+    ]
+    genre = []  # Initialize an empty dictionary to hold all genres and their IDs
+    for genres in session['temp_list']['genres']:
+        result = genre_mapping(genres)  # Returns {'drama': 18} or {}
+        if result:  # Check if result is not empty
+            genre.extend(result.values())  # Add the key-value pair(s) from result to genre
+    #genre = ",".join(str(gid) for gid in genre_ids if gid)  # Combine genre IDs into a single string
+    age = session['temp_list']['rating'] if 'rating' in session['temp_list'] else []    
     start_year = session['temp_list']['year']
+    # Convert lists to comma-separated strings for API
+    provider_str = ','.join(map(str, service_ids)) if service_ids else None
+    omit_str = ','.join(map(str, omit_ids)) if omit_ids else None
+    genre_str = ','.join(map(str, genre)) if genre else None
+    age_str = ','.join(age) if age else None
     
-    fetch_tmdb_movie(service_id, genre_id, age, start_year)
-    age = request.args.get('age', 'All')  # Default to 'All' if no age is provided
-    start_year = request.args.get('start_year', 1954)  # Default to 1954 if no start year is provided
+    logger.info(f"Providers: {provider_str}")
+    logger.info(f"Omit Providers: {omit_str}")
+    logger.info(f"Genres: {genre_str}")
+    logger.info(f"Ratings: {age_str}")
+    logger.info(f"Year Range: {start_year[0]}--{start_year[1]}")
     
-    # You can pass these parameters to the template for further use
-    return render_template('movie_selection.html', age=age, start_year=start_year)
+    # Fetch movies from TMDB with converted parameters
+    output = fetch_tmdb_movie(
+        provider=provider_str, 
+        omit=omit_str, 
+        genre=genre_str, 
+        rating=age_str, 
+        year_range=start_year
+    )
+    
+    # Log the number of movies fetched
+    if output:
+        logger.info(f"Fetched {len(output.get('results', []))} movies")
+    
+    # Render template with movies
+    return render_template('movie_selection.html', movies=output.get('results', []) if output else [])
 
 # ---- MOVIE API ENDPOINT ------
-def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
+def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_range=None):
     url = "https://api.themoviedb.org/3/discover/movie"
 
     print(f"Using BEARER_TOKEN: {BEARER_TOKEN}")
@@ -557,6 +597,8 @@ def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
 
     if provider:
         params["with_watch_providers"] = provider
+    if omit:
+        params["without_watch_providers"] = omit
     if genre:
         params["with_genres"] = genre
     if rating:
@@ -567,6 +609,7 @@ def fetch_tmdb_movie(provider=None, genre=None, rating=None, year_range=None):
 
     try:
         # Make the request to the TMDb API
+        logger.info(f"API Params: {params}")
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()  # Raise an HTTPError for bad responses
         return response.json()  # Return parsed JSON response
@@ -582,26 +625,29 @@ def service_mapping(provider):
         "accept": "application/json",
         "Authorization": f"Bearer {BEARER_TOKEN}"
     }
-
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         data = response.json()
+        omits, providers = None, None
+        provider_mapping = {provider['provider_name'].lower(): provider['provider_id'] for provider in data['results']}
         if provider == "netflix-button":
-            provider = "netflix" 
+            providers = {'netflix': provider_mapping.get('netflix')}
         elif provider == "hulu-button":
-            provider = "hulu" 
+            providers = {'hulu': provider_mapping.get('hulu')}
         elif provider == "third-party-button":
-            omit_provider = "netflix, hulu"
+            omits = {'hulu': provider_mapping.get('hulu'), 
+                     'netflix': provider_mapping.get('netflix')
+            }
+            providers = None
         elif provider == "all-button":
-            provider = ""
+            providers = ""
         else:
             print(f"Error fetching service: {e}")
             return None
         
         # Map provider names to their IDs
-        provider_mapping = {provider['provider_name'].lower(): provider['provider_id'] for provider in data['results']}
-        return provider_mapping, omit_provider
+        return providers, omits
     except requests.exceptions.RequestException as e:
         print(f"Error fetching service: {e}")
         return None
@@ -611,7 +657,7 @@ def genre_mapping(genre):
 
     headers = {
         "accept": "application/json",
-        "Authorization": f"Bearer {BEARER_TOKEN}"
+        "Authorization": f"Bearer {BEARER_TOKEN}" 
     }
     
     try:
@@ -619,7 +665,12 @@ def genre_mapping(genre):
         response.raise_for_status()
         data = response.json()
         # Map genre names to their IDs
-        genre_mapping = {genre['name'].lower(): genre['id'] for genre in data['genres']}
+        genre_mapping = {g['name'].lower(): g['id'] for g in data['genres']}
+
+        # Filter by input genre if provided
+        if genre:
+            genre_id = genre_mapping.get(genre.lower())
+            return {genre: genre_id} if genre_id else {}
         return genre_mapping
     except requests.exceptions.RequestException as e:
         print(f"Error fetching genres: {e}")
@@ -628,8 +679,6 @@ def genre_mapping(genre):
 @app.route('/random_movie')
 def random_movie():
     return render_template('random_movie.html')
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
