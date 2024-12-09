@@ -138,26 +138,18 @@
     <div class="movie-slider">
         <button class="slider-button" id="prev-btn">❮</button>
         <div class="movie-display" id="movie-display">
+            {% for movie in movies %}
             <div class="movie-card">
-                <img src="/static/images/movie1.jpg" alt="Movie 1">
-                <p>The Irishman</p>
+                <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+                     alt="{{ movie.title }} Poster"
+                     onerror="this.src='/static/images/placeholder.jpg';">
+                <p>{{ movie.title }}</p>
+                <p class="movie-details" style="display:none;">
+                    Release Date: {{ movie.release_date }}<br>
+                    Rating: {{ movie.vote_average|round(1) }}/10
+                </p>
             </div>
-            <div class="movie-card">
-                <img src="/static/images/movie2.jpg" alt="Movie 2">
-                <p>Inception</p>
-            </div>
-            <div class="movie-card">
-                <img src="/static/images/movie3.jpg" alt="Movie 3">
-                <p>Bad Boys</p>
-            </div>
-            <div class="movie-card">
-                <img src="/static/images/movie4.jpg" alt="Movie 4">
-                <p>Avatar</p>
-            </div>
-            <div class="movie-card">
-                <img src="/static/images/movie5.jpg" alt="Movie 5">
-                <p>The Matrix</p>
-            </div>
+            {% endfor %}
         </div>
         <button class="slider-button" id="next-btn">❯</button>
     </div>
@@ -166,7 +158,7 @@
 </div>
 
 <script>
-    // JavaScript for slider functionality
+    // JavaScript for slider functionality (keep your existing script)
     document.addEventListener('DOMContentLoaded', () => {
         const movieDisplay = document.getElementById('movie-display');
         const prevButton = document.getElementById('prev-btn');
@@ -174,15 +166,28 @@
 
         prevButton.addEventListener('click', () => {
             movieDisplay.scrollBy({
-                left: -300, // Adjust scroll amount
+                left: -300,
                 behavior: 'smooth',
             });
         });
 
         nextButton.addEventListener('click', () => {
             movieDisplay.scrollBy({
-                left: 300, // Adjust scroll amount
+                left: 300,
                 behavior: 'smooth',
+            });
+        });
+
+        // Optional: Add hover details
+        const movieCards = document.querySelectorAll('.movie-card');
+        movieCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                const details = card.querySelector('.movie-details');
+                if (details) details.style.display = 'block';
+            });
+            card.addEventListener('mouseleave', () => {
+                const details = card.querySelector('.movie-details');
+                if (details) details.style.display = 'none';
             });
         });
     });
