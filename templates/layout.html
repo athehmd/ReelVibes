@@ -1,13 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<style>
+    .user-dropdown {
+    position: relative;
+    display: inline-block;
+}
 
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #000000;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.user-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #000000;
+}
+</style>
+
+
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <title>{{ title }}</title>
 </head>
-
 <body>
     <!-- Custom header with navigation links -->
     <header class="custom-header">
@@ -15,18 +45,42 @@
         <nav class="nav-links">
             <a href="{{ url_for('home') }}">HOME</a>
             <a href="{{ url_for('recommend') }}">RECOMMEND</a>
-            <a href="{{ url_for('login') }}">LOGIN</a>
+            
+            {% if current_user.is_authenticated %}
+                <div class="user-dropdown">
+                    <a href="{{ url_for('profile') }}" class="nav-links">
+                        {{ current_user.username }}
+                    </a>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('profile') }}">My Profile</a>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}">LOGIN</a>
+            {% endif %}
         </nav>
     </header>
-
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
     <div class="content">
         {% block content %}
         {% endblock %}
     </div>
-
+    
     <footer>
-        &copy; 2024 ReelVibes
+        <p>© 2024 ReelVibes </p>
     </footer>
 </body>
-
 </html>
