@@ -18,7 +18,7 @@ dotenv.load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
-BEARER_TOKEN = os.environ.get('tmdbAPIKEY') # READ TOKEN
+BEARER_TOKEN = os.environ.get('BEARER_TOKEN') # READ TOKEN
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -371,7 +371,15 @@ def register_check(username, password, sec_quest_id, security_answer) -> str:
     logger.info("Gathering username.")
     
     logger.info("Gathering cursor.")
-    #cursor = conn.cursor()
+    
+    local_conn = mysql.connector.connect(
+                user="root",
+                password=os.environ.get("mariadbpassword"),
+                host="127.0.0.1",
+                port=3306,
+                database="reelvibes"
+            )
+    cursor = local_conn.cursor()
     
     logger.info("CHECKING USERNAME TO SEE IF ALREADY EXISTS.")
     cursor.execute("SELECT username FROM users WHERE username=%s", (username,))
@@ -392,7 +400,7 @@ def register_check(username, password, sec_quest_id, security_answer) -> str:
 
         cursor.execute(insert_user, user_data)
         cursor.close()
-        conn.commit()
+        local_conn.commit()
         
     except mysql.connector.Error as err:
         logger.error(f"Failed to insert: {err}")
