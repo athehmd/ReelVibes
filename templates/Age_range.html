@@ -4,30 +4,26 @@
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Age Range Selection</title>
     <style>
-        /* Base Container */
-        .age-selection-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .age-range-container {
+            position: relative;
+            width: 100%;
             height: 100vh;
             text-align: center;
-            color: #ffffff;
-            position: relative;
-            z-index: 1;
-            margin-top: 50px;
+            background-size: cover;
+            background-position: center;
         }
 
         /* Title and Subtitle */
-        .age-title {
+        .age-range-question {
             position: absolute;
             top: 130px;
-            left: 50%;
+            left: 48%;
             transform: translateX(-50%);
             font-family: 'Arial', sans-serif;
             font-size: 36px;
@@ -35,202 +31,160 @@
             color: #FFFFFF;
             text-align: center;
             background: rgba(90, 2, 90, 0.8);
-            margin-top: 80px; /* Increased spacing from the top */
-            padding: 30px 40px; /* Added more padding inside the title box */
+            padding: 20px 30px;
             border-radius: 12px;
             text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            border: 2px solid #ffffff;
             box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
         }
 
-        .age-title:hover {
+        .age-range-question:hover {
             background-color: #9c27b0;
             border-color: #ffffff;
         }
 
-        /* Subtitle within the same box styling */
         .age-subtitle {
             font-size: 18px;
-            /* Slightly smaller font for subtitle */
             color: rgba(255, 255, 255, 0.8);
-            /* Slightly lighter color */
             display: block;
-            /* Stacks below the title */
             margin-top: 5px;
-            /* Small gap from main title */
             font-weight: normal;
         }
 
-        /* Buttons Container */
-        .age-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px; /* Increased gap between buttons */
-            margin-top: 30px; /* Added space above the button container */
-            justify-content: center;
-        }
 
         /* Individual Buttons */
         .age-button {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            font-size: 1.2em;
+            position: absolute;
+            width: 229px;
+            height: 194px;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
             color: #ffffff;
-            background-color: rgba(90, 2, 90, 0.7);
-            border: 2px solid #D9D9D9;
+            background-color: rgba(128, 0, 128, 0.5);
+            border: 2px solid #ffffff;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
-            background-size: cover;
-            background-position: center;
-            background-blend-mode: multiply;
-            margin-bottom: 15px; /* Added spacing below each button for better alignment */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
         }
 
+        /* Button Hover Effect */
         .age-button:hover {
-            background-color: rgba(255, 255, 255, 0.3);
-            border-color: #ffffff;
-            transform: scale(1.1);
-        }
-
-        .age-button.selected {
+            transform: scale(1.05);
             background-color: #9c27b0;
             border-color: #ffffff;
         }
 
+        /* Tick Styling */
         .age-tick {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            font-size: 1.5em;
-            color: #ffc107;
             display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            color: #ffc107;
         }
 
         .age-button.selected .age-tick {
-            display: inline;
+            display: block;
         }
 
-        /* Add background images for each age button */
+        /* Specific Positioning for Each Button */
         #g-button {
-            background-color: rgba(0, 0, 0, 0.7); /* Background color */
-            color: #ffffff; /* Text color */
-            font-size: 2em; /* Font size for the letter */
-            font-weight: bold; /* Bold text */
-            text-align: center; /* Center the text */
-            border: 2px solid #D9D9D9; /* Button border */
-            border-radius: 8px; /* Rounded corners */
-            width: 150px; /* Button width */
-            height: 150px; /* Button height */
-            display: flex; /* Flex layout to center the text */
-            align-items: center; /* Vertically center the text */
-            justify-content: center; /* Horizontally center the text */
-            cursor: pointer; /* Pointer cursor on hover */
-            transition: all 0.3s ease; /* Smooth transition for hover effects */
-            background-blend-mode: multiply;
-            background-size: cover;
-            background-position: center;
+            left: 292px;
+            top: 292px;
+            background-color: rgba(128, 0, 128, 0.5);
+            transition: all 0.3s ease;
+            /* Smooth transition for hover effects */
+        }
+
+        #g-button:hover {
+            background-color: #9c27b0;
+            /* Slightly brighter purple */
+            transform: scale(1.05);
+            /* Slight enlargement for a hover effect */
+            border: 2px solid #ffffff;
+            /* Add a border for emphasis */
         }
 
         #pg-button {
-            background-color: rgba(0, 0, 0, 0.7); /* Background color */
-            color: #ffffff; /* Text color */
-            font-size: 2em; /* Font size for the letter */
-            font-weight: bold; /* Bold text */
-            text-align: center; /* Center the text */
-            border: 2px solid #D9D9D9; /* Button border */
-            border-radius: 8px; /* Rounded corners */
-            width: 150px; /* Button width */
-            height: 150px; /* Button height */
-            display: flex; /* Flex layout to center the text */
-            align-items: center; /* Vertically center the text */
-            justify-content: center; /* Horizontally center the text */
-            cursor: pointer; /* Pointer cursor on hover */
-            transition: all 0.3s ease; /* Smooth transition for hover effects */
-            background-blend-mode: multiply;
-            background-size: cover;
-            background-position: center;
+            left: 871px;
+            top: 292px;
+            background-color: rgba(128, 0, 128, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        #pg-button:hover {
+            background-color: #9c27b0;
+            transform: scale(1.05);
+            border: 2px solid #ffffff;
         }
 
         #pg-13-button {
-            background-color: rgba(0, 0, 0, 0.7); /* Background color */
-            color: #ffffff; /* Text color */
-            font-size: 2em; /* Font size for the letter */
-            font-weight: bold; /* Bold text */
-            text-align: center; /* Center the text */
-            border: 2px solid #D9D9D9; /* Button border */
-            border-radius: 8px; /* Rounded corners */
-            width: 150px; /* Button width */
-            height: 150px; /* Button height */
-            display: flex; /* Flex layout to center the text */
-            align-items: center; /* Vertically center the text */
-            justify-content: center; /* Horizontally center the text */
-            cursor: pointer; /* Pointer cursor on hover */
-            transition: all 0.3s ease; /* Smooth transition for hover effects */
-            background-blend-mode: multiply;
-            background-size: cover;
-            background-position: center;
+            left: 292px;
+            top: 528px;
+            background-color: rgba(128, 0, 128, 0.5);
+            transition: all 0.3s ease;
         }
 
+        #pg-13-button:hover {
+            background-color: #9c27b0;
+            transform: scale(1.05);
+            border: 2px solid #ffffff;
+        }
 
         #r-button {
-            background-color: rgba(0, 0, 0, 0.7); /* Background color */
-            color: #ffffff; /* Text color */
-            font-size: 2em; /* Font size for the letter */
-            font-weight: bold; /* Bold text */
-            text-align: center; /* Center the text */
-            border: 2px solid #D9D9D9; /* Button border */
-            border-radius: 8px; /* Rounded corners */
-            width: 150px; /* Button width */
-            height: 150px; /* Button height */
-            display: flex; /* Flex layout to center the text */
-            align-items: center; /* Vertically center the text */
-            justify-content: center; /* Horizontally center the text */
-            cursor: pointer; /* Pointer cursor on hover */
-            transition: all 0.3s ease; /* Smooth transition for hover effects */
-            background-blend-mode: multiply;
-            background-size: cover;
-            background-position: center;
+            left: 871px;
+            top: 528px;
+            background-color: rgba(128, 0, 128, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        #r-button:hover {
+            background-color: #9c27b0;
+            transform: scale(1.05);
+            border: 2px solid #ffffff;
         }
 
 
-        /* Select All and Done Buttons */
+        .age-actions {
+            position: absolute;
+            bottom: 50px;
+            left: 48.5%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            /* Equal spacing between buttons */
+        }
+
         .age-actions button {
-            padding: 10px 20px;
-            font-size: 1.2em;
+            padding: 10px 30px;
+            font-size: 1.2rem;
             font-weight: bold;
             color: #ffffff;
-            background-color: rgba(90, 2, 90, 0.7);
-            border: 2px solid #D9D9D9;
+            background-color: rgba(90, 2, 90, 0.8);
+            border: 2px solid #ffffff;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            margin-top: 30px; /* Added more spacing above action buttons */
-            margin-right: 20px; /* Increased spacing between the buttons */
+            transition: all 0.3s ease;
         }
 
         .age-actions button:hover {
             background-color: #9c27b0;
-            border-color: #ffffff;
-        }
-
-        #done-button:disabled {
-            background-color: #555;
-            border-color: #888;
-            cursor: not-allowed;
-            opacity: 0.6;
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
     <div class="age-range-container">
-        <h2 class="age-range-question">Rating</h2>
+        <h2 class="age-range-question">
+            Rating
             <span class="age-subtitle">Select all that apply</span>
         </h2>
         <form method="POST" action="/Age_range.html">
