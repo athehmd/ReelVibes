@@ -58,11 +58,19 @@ security_questions = {
 base_url = "https://api.themoviedb.org/3/"
 
 headers = {
-    "accept": "application/json",
-    "Authorization": f"Bearer {os.environ.get('tmdbAPIKEY')}", #replace 'os.environ.get() with your own environment variable [WINDOWS ONLY]
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+        "accept": "application/json"
 }
 movie_endpoint = f"{base_url}search/movie"
-popular_endpoint = f"{base_url}movie/popular"
+popular_endpoint = f"{base_url}movie/popular?language=en-US&page=1"
+
+our_Recommendations = ["Rush Hour",
+                      "Inception",
+                      "The Grand Budapest Hotel",
+                      "The Big Short",
+                      "Interstellar",
+                      "The Matrix",
+]
 
 #             Example: 
 # query = request.form[query] <- gets query from html webpage
@@ -153,7 +161,93 @@ def load_user(user_id):
 
 @app.route('/')
 def home():
-    return render_template('home.html', title='Home Page')
+    url = "https://api.themoviedb.org/3/movie/popular?language=en-US"
+    url2 = "https://api.themoviedb.org/3/discover/movie"
+    url_details = "https://api.themoviedb.org/3/movie/{movie_id}"
+    url_certification = "https://api.themoviedb.org/3/movie/{movie_id}/release_dates"
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+    }
+    params = {
+        "include_adult": "false",
+        "include_video": "false",
+        "language": "en-US",
+        "sort_by": "popularity.desc",
+        "page": 1,
+        "watch_region": "US",
+        "region": "US",
+        "certification_country": "US",
+        "with_genres": 16
+    }
+    
+    all_movies = []
+    
+    page, page2 = 1, 1
+    
+    while page < 4:
+        response = requests.get(f"{url}&page={page}", headers=headers)  # Append page to URL
+        if response.status_code == 200:
+            movies = response.json().get('results', [])
+            all_movies.extend(movies)  # Use extend to add all movies from this page
+            
+            # Check if there are more pages to fetch
+            total_pages = response.json().get('total_pages', 0)
+            if page >= total_pages:
+                break
+            page += 1
+        else:
+            print(f"Error fetching page {page}")
+            break
+    
+    all_movies = all_movies[:23]
+    while page2 < 3:
+        params["page"] = page2  # Set the page parameter for animated movies request
+        response = requests.get(url2, headers=headers, params=params)  # Append page to URL
+        if response.status_code == 200:
+            movies = response.json().get('results', [])
+            all_movies.extend(movies)  # Use extend to add all movies from this page
+            
+            # Check if there are more pages to fetch
+            total_pages = response.json().get('total_pages', 0)
+            if page2 >= total_pages:
+                break
+            page2 += 1
+        else:
+            print(f"Error fetching page {page2}")
+            break
+    
+    for i in range(min(len(all_movies), 40)):
+        movie_id = all_movies[i].get('id')  # Get the movie ID
+        if movie_id:
+            response = requests.get(url_details.format(movie_id=movie_id), headers=headers)
+            response2 = requests.get(url_certification.format(movie_id=movie_id), headers=headers)
+            if response.status_code == 200:
+                movie_details = response.json()
+                runtime = movie_details.get('runtime', None)  # Fetch runtime from details
+                
+                all_movies[i]['runtime'] = runtime  # Map runtime to the respective movie
+            else:
+                print(f"Failed to fetch runtime for movie ID {movie_id}: {response.status_code}")
+            if response2.status_code == 200:
+                release_dates = response2.json().get('results', [])
+                us_certification = None
+                for entry in release_dates:
+                    if entry.get('iso_3166_1') == "US":  # Look for US certifications
+                        us_release_dates = entry.get('release_dates', [])
+                        for release in us_release_dates:
+                            certification = release.get('certification')
+                            if certification:  # Check if certification is not empty
+                                us_certification = certification
+                                break  # Stop once a valid certification is found
+                        break  # Stop checking other countries once US is processed
+                all_movies[i]['certification'] = us_certification  # Map certification to the respective movie
+            else:
+                print(f"Failed to fetch certification for movie ID {movie_id}: {response2.status_code}")
+        else:
+            print(f"Missing movie ID at index {i}")
+    
+    return render_template('home.html', movies=all_movies)
 
 @app.route('/movies')
 @login_required
@@ -185,7 +279,7 @@ def login():
             status = login_check(username, password, remember)
             if status == SUCCESS:
                 #user = request.form['nm']
-                
+                flash("Login Success!")
                 return redirect('/')
             else:
                 return render_template('login.html')
@@ -567,19 +661,29 @@ def movie_selection():
         rating=age_str, 
         year_range=start_year
     )
-    
-    # Log the number of movies fetched
-    if output:
-        logger.info(f"Fetched {len(output.get('results', []))} movies")
-    
-    # Render template with movies
-    return render_template('movie_selection.html', movies=output.get('results', []) if output else [])
+    filtered_movies = output.get('results', []) if output else []
+    if output: logger.info(f"Fetched {len(output.get('results', []))} movies ::::: {output.get('results', [])}")
+    # If not enough movies from filter, supplement with predefined movies
+    if len(filtered_movies) < 6:
+        # Fetch additional movie details for predefined titles
+        predefined_movie_details = Recommendation_Fetcher(our_Recommendations)
+        
+        # Combine and deduplicate movies
+        combined_movies = filtered_movies + [
+            movie for movie in predefined_movie_details 
+            if movie not in filtered_movies
+        ]
+        
+        # Truncate to 6 movies
+        final_movies = combined_movies[:6]
+    else:
+        final_movies = filtered_movies
+    logger.info(f"final_movies ::::: {final_movies}")
+    return render_template('movie_selection.html', movies=final_movies, our_Recommendations=our_Recommendations)
 
 # ---- MOVIE API ENDPOINT ------
 def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_range=None):
     url = "https://api.themoviedb.org/3/discover/movie"
-
-    print(f"Using BEARER_TOKEN: {BEARER_TOKEN}")
 
     headers = {
         "Authorization": f"Bearer {BEARER_TOKEN}",
@@ -593,6 +697,7 @@ def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_ran
         "sort_by": "popularity.desc",
         "page": 1,
         "watch_region": "US",
+        "region": "US",
         "certification_country": "US"
     }
 
@@ -613,10 +718,48 @@ def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_ran
         logger.info(f"API Params: {params}")
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()  # Raise an HTTPError for bad responses
-        return response.json()  # Return parsed JSON response
+        data = response.json()
+        return data
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from TMDb API: {e}")
         return None
+
+def Recommendation_Fetcher(movie_titles):
+    all_movie_results = []
+    
+    for title in movie_titles:
+        url = "https://api.themoviedb.org/3/search/movie"
+        headers = {
+            "Authorization": f"Bearer {BEARER_TOKEN}",
+            "accept": "application/json"
+        }
+        
+        params = {
+            "query": title,
+            "language": "en-US",
+            "page": 1,
+            "include_adult": "false"
+        }
+        
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            # If results exist, take the first match
+            if data.get('results'):
+                # Sort results by popularity and take the top result
+                top_result = sorted(data['results'], 
+                                    key=lambda x: x.get('popularity', 0), 
+                                    reverse=True)[0]
+                all_movie_results.append(top_result)
+            
+        except requests.exceptions.RequestException as e:
+            print(f"Error searching for '{title}': {e}")
+    
+    return all_movie_results
+    
 
 # Service Mapping
 def service_mapping(provider):
@@ -679,7 +822,27 @@ def genre_mapping(genre):
 
 @app.route('/random_movie')
 def random_movie():
-    return render_template('random_movie.html')
+    url = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1"
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {BEARER_TOKEN}",
+    }
+
+    # Fetch popular movies
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        movies = response.json().get('results', [])
+        if movies:
+            # Pick a random movie from the list
+            random_movie = random.choice(movies)
+            return render_template('random_movie.html', movie=random_movie)
+        else:
+            logger.error("No movies found.")
+    else:
+        logger.error(f"Error fetching movies: {response.status_code}")
+        return render_template('random_movie.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
