@@ -39,6 +39,7 @@ body {
 }
 
 .nav-links a {
+    text-transform: uppercase;
     color: #ffc107;
     text-decoration: none;
     padding: 10px 15px;
@@ -95,6 +96,12 @@ body {
 .main-button:hover, .randomize-button:hover {
     background-color: #9c27b0;
     border-color: #D9D9D9;
+}
+
+footer {
+
+    margin-top: auto;
+    text-align: end;
 }
 
 /* Responsive adjustments */
