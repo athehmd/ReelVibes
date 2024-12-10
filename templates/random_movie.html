@@ -95,10 +95,18 @@
         <h1 class="random-title">Randomized Movie of the Day!</h1>
     </div>
     <div class="random-movie-card">
-        <img src="/static/images/random_movie.jpg" alt="Randomized Movie">
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
+            alt="{{ movie.title }} Poster"
+            onerror="this.src='/static/images/placeholder.jpg';">
+        <p>{{ movie.title }}</p>
+        <p class="movie-details" style="display:none;">
+            Release Date: {{ movie.release_date }}<br>
+            Rating: {{ movie.vote_average|round(1) }}/10
+        </p>    
     </div>
-    <button class="back-button" onclick="window.location.href='/'">Back to Home</button>
+    <button class="back-button" onclick="window.location.href='/recommend'">Back to Recommend</button>
 </div>
+
 
 
 
