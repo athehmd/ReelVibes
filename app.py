@@ -18,7 +18,7 @@ dotenv.load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
-BEARER_TOKEN = os.environ.get('BEARER_TOKEN') # READ TOKEN
+BEARER_TOKEN = os.environ.get('tmdbAPIKEY') # READ TOKEN
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -107,7 +107,6 @@ class User(UserMixin):
         self.id = user_id
         self.username = username
     
-    @staticmethod
     def getId(self):
         return self.username
     
@@ -158,6 +157,49 @@ def load_user(user_id):
     except mysql.connector.Error as err:
         logger.error(f"Error in user loader: {err}")
         return None
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        try:
+            req = request.form.get('button_id')
+            if req == "delete":
+                return redirect(url_for('delete'))
+        except mysql.connector.Error as err:
+            logger.error(f"Error in user loader: {err}")
+        
+    return(render_template('profile.html'))
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+@app.route('/delete', methods=['GET', 'POST'])
+@login_required
+def delete():
+    username = current_user.getId()
+    try:
+        local_conn = mysql.connector.connect(
+            user="root",
+            password=os.environ.get("mariadbpassword"),
+            host="127.0.0.1",
+            port=3306,
+            database="reelvibes"
+        )
+        cursor = local_conn.cursor(dictionary=True)
+        cursor.execute("DELETE FROM users WHERE username = %s", (username,))
+        if cursor.rowcount > 0:
+            local_conn.commit()
+            return redirect(url_for('home'))
+        cursor.close()
+        local_conn.close()
+    except mysql.connector.Error as err:
+        logger.error(f"Error in user loader: {err}")
+        return None
+        
 
 @app.route('/')
 def home():
@@ -371,15 +413,7 @@ def register_check(username, password, sec_quest_id, security_answer) -> str:
     logger.info("Gathering username.")
     
     logger.info("Gathering cursor.")
-    
-    local_conn = mysql.connector.connect(
-                user="root",
-                password=os.environ.get("mariadbpassword"),
-                host="127.0.0.1",
-                port=3306,
-                database="reelvibes"
-            )
-    cursor = local_conn.cursor()
+    #cursor = conn.cursor()
     
     logger.info("CHECKING USERNAME TO SEE IF ALREADY EXISTS.")
     cursor.execute("SELECT username FROM users WHERE username=%s", (username,))
@@ -400,7 +434,7 @@ def register_check(username, password, sec_quest_id, security_answer) -> str:
 
         cursor.execute(insert_user, user_data)
         cursor.close()
-        local_conn.commit()
+        conn.commit()
         
     except mysql.connector.Error as err:
         logger.error(f"Failed to insert: {err}")
@@ -527,12 +561,6 @@ def reset():
             return redirect(url_for('reset', username=username))
             
     return render_template('reset.html', title='Reset', username=username)
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('home'))
 
 @app.route('/recommend')
 @login_required
@@ -686,7 +714,7 @@ def movie_selection():
         final_movies = combined_movies[:6]
     else:
         final_movies = filtered_movies
-    logger.info(f"final_movies ::::: {final_movies}")
+    #logger.info(f"final_movies ::::: {final_movies}")
     return render_template('movie_selection.html', movies=final_movies, our_Recommendations=our_Recommendations)
 
 # ---- MOVIE API ENDPOINT ------
