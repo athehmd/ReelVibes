@@ -1,5 +1,11 @@
 /* LOGIN PAGE CSS */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+@font-face {
+  font-family: 'PorterSansBlock';
+  src: url('/static/css/fonts/porter-sans-block.block.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
 
 
 * {
@@ -34,7 +40,8 @@ header {
 }
 
 .logo {
-  font-size: 2em;
+  font-family: 'PorterSansBlock', sans-serif;
+  font-size: 1.5em;
   color: #C6AD25;
   user-select: none;
 }
