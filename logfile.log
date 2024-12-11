@@ -214,3 +214,15 @@
 2024-12-10 11:14:06,399 - INFO - Gathering username.
 2024-12-10 11:14:06,400 - INFO - Gathering cursor.
 2024-12-10 11:14:06,400 - INFO - CHECKING USERNAME TO SEE IF ALREADY EXISTS.
+2024-12-10 17:02:23,684 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:02:23,684 - ERROR - cursor is none
+2024-12-10 17:02:23,895 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:02:23,895 - ERROR - cursor is none
+2024-12-10 17:02:31,076 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:02:31,082 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:03:15,770 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:03:15,770 - ERROR - cursor is none
+2024-12-10 17:04:17,399 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:04:17,403 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:04:19,724 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:04:19,729 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)

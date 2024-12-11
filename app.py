@@ -18,7 +18,7 @@ dotenv.load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
-BEARER_TOKEN = os.environ.get('tmdbAPIKEY') # READ TOKEN
+BEARER_TOKEN = os.getenv("BEARER_TOKEN") # READ TOKEN
 app.jinja_env.filters['upper'] = str.upper
 
 # Flask-Login setup
