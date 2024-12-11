@@ -1,3 +1,7 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,15 +15,6 @@
 </head>
 
 <body>
-
-    <header>
-        <h2 class="logo">REELVIBES</h2>
-        <nav class="navigation">
-            <a href="{{ url_for('home') }}">HOME</a>
-            <a href="{{ url_for('recommend') }}">RECOMMEND</a>
-            <a href="{{ url_for('login') }}">LOGIN</a>
-        </nav>
-    </header>
 
     <div class="wrapper">
         <div class="form-box login">
@@ -88,3 +83,4 @@
 </body>
 
 </html>
+{% endblock %}
