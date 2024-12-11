@@ -21,7 +21,7 @@
         padding: 10px 20px;
         text-align: center;
         border-radius: 8px;
-        border: 1px solid #D9D9D9;
+        border: 2px solid #ffffff;
         margin-bottom: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }
@@ -41,9 +41,7 @@
 
     .random-movie-card {
         width: 227px;
-        /* Match the width of the Movie Suggestions cards */
         height: 390px;
-        /* Match the height of the Movie Suggestions cards */
         border-radius: 10px;
         overflow: hidden;
         background-color: rgba(255, 255, 255, 0.1);
@@ -59,11 +57,8 @@
 
     .random-movie-card img {
         width: 100%;
-        /* Ensure the image fills the width */
         height: 100%;
-        /* Ensure the image fills the height */
         object-fit: cover;
-        /* Maintain aspect ratio and cover the box */
         border-radius: 10px;
         margin-bottom: 10px;
     }
@@ -72,11 +67,17 @@
         transform: scale(1.05);
     }
 
+    .button-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
 
-    .back-button {
+    .button {
         background-color: rgba(90, 2, 90, 0.7);
         color: #ffffff;
-        border: 1px solid #D9D9D9;
+        border: 2px solid #ffffff;
         padding: 10px 20px;
         border-radius: 8px;
         cursor: pointer;
@@ -84,9 +85,9 @@
         text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
     }
 
-    .back-button:hover {
+    .button:hover {
         background-color: #9c27b0;
-        border-color: #D9D9D9;
+        border-color: #ffffff;
     }
 </style>
 
@@ -95,24 +96,21 @@
         <h1 class="random-title">Randomized Movie of the Day!</h1>
     </div>
     <div class="random-movie-card">
-        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" 
-            alt="{{ movie.title }} Poster"
+        <img src="https://image.tmdb.org/t/p/w500{{ movie.poster_path }}" alt="{{ movie.title }} Poster"
             onerror="this.src='/static/images/placeholder.jpg';">
         <p>{{ movie.title }}</p>
         <p class="movie-details" style="display:none;">
             Release Date: {{ movie.release_date }}<br>
             Rating: {{ movie.vote_average|round(1) }}/10
-        </p>    
+        </p>
     </div>
-    <button class="back-button" onclick="window.location.href='/recommend'">Back to Recommend</button>
-    <button class="back-button" onclick="window.location.href='/random_movie'">Shuffle</button>
+    <div class="button-container">
+        <button class="button" onclick="window.location.href='/recommend'">Back to Home</button>
+        <button class="button" onclick="window.location.href='/random_movie'">Shuffle</button>
+    </div>
 </div>
 
-
-
-
 <script>
-    // JavaScript logic if needed
     document.addEventListener('DOMContentLoaded', () => {
         console.log('Randomized Movie Page Loaded');
     });
