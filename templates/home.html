@@ -29,14 +29,14 @@
     .modal-content {
         position: relative;
         margin: 5% auto;
-        width: 90%; /* 90% of the screen width */
-        height: 70%; /* 70% of the screen height */
-        max-width: 1200px; /* Ensure it doesn’t grow too large on wide screens */
-        max-height: 800px; /* Prevent it from being too tall */
-        background: none; /* Transparent background to show the backdrop */
+        width: 90%; 
+        height: 70%; 
+        max-width: 1200px; 
+        max-height: 800px; 
+        background: none; 
         border: none;
-        display: flex; /* Ensure child elements are aligned */
-        flex-direction: column; /* Stack content vertically if needed */
+        display: flex; 
+        flex-direction: column; 
     }
     
     .modal-backdrop {
@@ -50,12 +50,12 @@
         align-items: center;
         color: white
         width: 100%;
-        height: 100%; /* Ensures it takes up all modal-content */
+        height: 100%; 
     }
     
     .modal-body {
         display: flex;
-        flex-direction: row; /* Arrange poster and text side-by-side */
+        flex-direction: row; 
         gap: 20px;
         width: 100%;
         height: 100%;
@@ -63,10 +63,10 @@
     
     #modalPoster {
         flex-shrink: 0;
-        width: absolute; /* Fixed width for the poster */
-        height: 100%%; /* Maintain aspect ratio */
-        max-height: 100%; /* Prevent it from exceeding modal height */
-        object-fit: cover; /* Ensure the image fills the available space without distortion */
+        width: absolute; 
+        height: 100%%; 
+        max-height: 100%; 
+        object-fit: cover; 
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
@@ -119,16 +119,11 @@
 
 <body>
 
-    <!-- NAV -->
-    
-    <!-- END NAV -->
 
-    <!-- HERO SECTION -->
     <div class="hero-section">
-        <!-- HERO SLIDE -->
+
         <div class="hero-slide">
             <div class="owl-carousel carousel-nav-center" id="hero-carousel">
-                <!-- SLIDE ITEM -->
                 {% for movie in movies[:3] %}
                 <div class="hero-slide-item">
                     <img src="https://image.tmdb.org/t/p/original{{ movie.backdrop_path }}" alt="{{ movie.title }} Background">
