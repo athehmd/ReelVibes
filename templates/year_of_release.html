@@ -16,23 +16,15 @@
             justify-content: center;
             position: absolute;
             top: 2000%;
-            /* Center vertically */
             left: 50%;
-            /* Center horizontally */
             transform: translate(-50%, -50%);
             background-color: rgba(90, 2, 90, 0.7);
-            /* Background with transparency */
             padding: 20px 40px;
-            /* Padding for spacing inside the container */
             border: 2px solid #ffffff;
-            /* Border styling */
             border-radius: 10px;
-            /* Rounded corners */
             text-align: center;
             width: 400px;
-            /* Adjust width as needed */
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            /* Optional shadow for effect */
         }
 
         .year-release-container p {
@@ -109,17 +101,13 @@
 
 <body>
     <div class="year-release-container">
-        <!-- Title -->
         <h2>Year of Release</h2>
 
-        <!-- Year Display -->
         <p class="year-display">Movies from: <span id="selected-year">2024</span> to Present</p>
 
-        <!-- Slider -->
         <label for="year-range" class="slider-label">Select a starting year:</label>
         <input type="range" id="year-range" min="1950" max="2024" step="1" value="1950">
 
-        <!-- Apply Button -->
         <form method="POST" action="/year_of_release.html">
             <input type="hidden" name="start_year" id="start_year">
             <button id="apply-button" class="apply-button" type="button">Apply</button> <!-- Changed to type="button" -->
