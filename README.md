@@ -4,8 +4,8 @@
 
 1. Install HeidiSQL/MySQLWorkbench
 2. Open connection to a server with ports matching database connection (lines 50-60) in app.py.
-3. Create database called reelvibes1, if asked use utf8mb4_unicode_520_ci.
-4. Copy create_database_tables.SQL into reelvibes1 query and execute (make sure tables are created)
+3. Create database called reelvibes, if asked use utf8mb4_unicode_520_ci.
+4. Copy create_database_tables.SQL into reelvibes query and execute (make sure tables are created)
 5. Change database connection password in app.py to your database connection password
 
 # Application Usage:
