@@ -532,45 +532,41 @@ def forgot():
 
 @app.route('/reset', methods=['GET', 'POST']) #Reset Password Page
 def reset():
-    username = request.args.get('username')  # Retrieve username from query string
+    username = session['username']
     if request.method == 'POST':
         newPassword = request.form["newPassword"]
         confirmPassword = request.form["confirmPassword"]
         if newPassword == confirmPassword:
             logger.info("Confirmed password match.")
-            local_conn = mysql.connector.connect(
-                user="root",
-                password=os.environ.get("mariadbpassword"),
-                host="127.0.0.1",
-                port=3306,
-                database="reelvibes"
-            )
-            cursor = local_conn.cursor()
             hashedNewPassword = hashpw(newPassword.encode('utf-8'), gensalt()).decode('utf-8')
             resetPasswordQuery = "UPDATE users SET password = %s WHERE username = %s;"
-            try: 
+            try:
+                # Establish database connection
+                local_conn = mysql.connector.connect(
+                    user="root",
+                    password=os.environ.get("mariadbpassword"),
+                    host="127.0.0.1",
+                    port=3306,
+                    database="reelvibes"
+                )
+                cursor = local_conn.cursor()
+
+                # Update the password
+                logger.info(f"{hashedNewPassword}, {username}")
                 cursor.execute(resetPasswordQuery, (hashedNewPassword, username))
-                cursor.close()
-                conn.commit()
-                find_user_id = "SELECT id FROM users WHERE username = %s"
-                cursor.execute(find_user_id, (username,))
-                local_conn.commit()
-                logger.info("Password update in database.")
-                user_id = cursor.fetchone()
-                if user_id:  # Ensure user exists
-                    logger.info(f"User found with ID: {user_id['id']}")
-                    user = User(str(user_id['id']), username)
-                    login_user(user)
-                    logger.info("User logged in after password reset.")
-                    return redirect(url_for('/'))
-                else:
-                    logger.error("User not found after password update.")
-                    flash("User not found. Please try again.", "error")
-                    return redirect(url_for('reset', username=username))
-            except: 
-                logger.error("Failed to execute new password update.")
-                flash("Failed to execute new password update. Try Again")
+                if cursor.rowcount > 0:
+                    session.pop('username', None)
+                    local_conn.commit()
+                    logger.info("password in database updated.")
+                # Retrieve the user ID for the updated username
+                return redirect(url_for('login'))
+            except mysql.connector.Error as err:  # Catch specific MySQL errors
+                logger.error(f"Error: {err}")
+                flash("Failed to execute new password update. Try Again.", "error")
                 return redirect(url_for('reset', username=username))
+            finally:
+                cursor.close()
+                local_conn.close()
         else:
             logger.error("Passwords do not match")
             flash("Passwords do not match. Try Again.")
@@ -582,8 +578,6 @@ def reset():
 @login_required
 def recommend():
     return render_template('recommend.html', title='Recommendations')
-
-
 
 @app.route('/choose_service', methods=['GET', 'POST'])
 def choose_service():
