@@ -110,6 +110,9 @@ class User(UserMixin):
     
     def getId(self):
         return self.username
+
+    def getuserId(self):
+        return self.id
     
     @staticmethod
     def get_user_by_id(conn, user_id: str) -> Optional['User']:
@@ -328,6 +331,7 @@ def filter_movies(genre, year, director):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    questions=security_questions
     if request.method == 'POST':
         form_type = request.form.get('form_type')
         if form_type == 'login':  # Handle login form 
@@ -339,8 +343,10 @@ def login():
                 #user = request.form['nm']
                 flash("Login Success!")
                 return redirect('/')
-            else:
-                return render_template('login.html')
+            elif status == FAILURE:
+                flash("Wrong password, please try again.")
+                logger.info("FLASH")
+                return redirect('/login')
         elif form_type == 'register':  # Handle registration form
             username = request.form['username']
             password = request.form['password']
@@ -351,7 +357,7 @@ def login():
             if status == EXIT:
                 flash("Username already exists. Please try another or try logging in.")
                 logger.info("FLASH")
-                return redirect('/login')
+                return redirect('/login', security_questions)
             
             if status != FAILURE:
                 # Successful register, you can redirect the user to the login page or any other page
@@ -667,6 +673,7 @@ def year_of_release():
 
 @app.route('/movie_selection.html', methods=['GET', 'POST'])
 def movie_selection():
+    url_details = "https://api.themoviedb.org/3/movie/{movie_id}"
     # Extract service_ids (from providers)
     service_ids = [
         id_ for service in session['temp_list']['service']
@@ -708,7 +715,24 @@ def movie_selection():
         year_range=start_year
     )
     filtered_movies = output.get('results', []) if output else []
-    if output: logger.info(f"Fetched {len(output.get('results', []))} movies ::::: {output.get('results', [])}")
+    watched_movie_ids = set()
+    try:
+        local_conn = mysql.connector.connect(
+                user="root",
+                password=os.environ.get("mariadbpassword"),
+                host="127.0.0.1",
+                port=3306,
+                database="reelvibes"
+            )
+        cursor = local_conn.cursor()
+        cursor.execute("SELECT movie_id FROM watched where user_id = %s", (current_user.getuserId(),))
+        local_conn.commit()
+        watched_movie_ids = {row[0] for row in cursor.fetchall()}
+        logger.info(f"watched IDS:: {watched_movie_ids}")
+    except: 
+            logger.error("Failed to retrieve watched_movies.")
+        
+    #if output: logger.info(f"Fetched {len(output.get('results', []))} movies ::::: {output.get('results', [])}")
     # If not enough movies from filter, supplement with predefined movies
     if len(filtered_movies) < 6:
         # Fetch additional movie details for predefined titles
@@ -717,13 +741,24 @@ def movie_selection():
         # Combine and deduplicate movies
         combined_movies = filtered_movies + [
             movie for movie in predefined_movie_details 
-            if movie not in filtered_movies
+            if movie not in filtered_movies and movie['id'] not in watched_movie_ids
         ]
         
         # Truncate to 6 movies
         final_movies = combined_movies[:6]
     else:
         final_movies = filtered_movies
+    for i in range(min(len(final_movies), 40)):
+                movie_id = final_movies[i].get('id')  # Get the movie ID
+                if movie_id:
+                    response = requests.get(url_details.format(movie_id=movie_id), headers=headers)
+                    if response.status_code == 200:
+                        movie_details = response.json()
+                        runtime = movie_details.get('runtime', None)  # Fetch runtime from details
+                        
+                        final_movies[i]['runtime'] = runtime  # Map runtime to the respective movie
+                    else:
+                        print(f"Failed to fetch runtime for movie ID {movie_id}: {response.status_code}")
     #logger.info(f"final_movies ::::: {final_movies}")
     return render_template('movie_selection.html', movies=final_movies, our_Recommendations=our_Recommendations)
 
@@ -741,7 +776,6 @@ def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_ran
         "include_video": "false",
         "language": "en-US",
         "sort_by": "popularity.desc",
-        "page": 1,
         "watch_region": "US",
         "region": "US",
         "certification_country": "US"
@@ -759,15 +793,36 @@ def fetch_tmdb_movie(provider=None, omit=None, genre=None, rating=None, year_ran
         params["primary_release_date.gte"] = f"{year_range[0]}-01-01"
         params["primary_release_date.lte"] = f"{year_range[1]}-12-31"
 
+    data = []
+    page = 1
     try:
-        # Make the request to the TMDb API
-        logger.info(f"API Params: {params}")
-        response = requests.get(url, headers=headers, params=params)
-        response.raise_for_status()  # Raise an HTTPError for bad responses
-        data = response.json()
-        return data
+        while page < 4:
+            current_params = {**params, "page": page}
+            response = requests.get(url, headers=headers, params=current_params)
+            
+            if response.status_code == 200:
+                response_data = response.json()
+                movies = response_data.get('results', [])
+                
+                if not movies:
+                    break
+                
+                data.extend(movies)
+                
+                total_pages = response_data.get('total_pages', 0)
+                if page >= total_pages:
+                    break
+                
+                page += 1
+            else:
+                logger.error(f"Error fetching page {page}: {response.text}")
+                break
+        
+        logger.info(f"Fetched {len(data)} movies")
+        return {"results": data}
+    
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching data from TMDb API: {e}")
+        logger.error(f"Error fetching data from TMDb API: {e}")
         return None
 
 def Recommendation_Fetcher(movie_titles):
@@ -869,11 +924,13 @@ def genre_mapping(genre):
 @app.route('/random_movie')
 def random_movie():
     url = "https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1"
+    url_details = "https://api.themoviedb.org/3/movie/{movie_id}"
+    url_certification = "https://api.themoviedb.org/3/movie/{movie_id}/release_dates"
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {BEARER_TOKEN}",
     }
-
+    
     # Fetch popular movies
     response = requests.get(url, headers=headers)
     
@@ -882,6 +939,36 @@ def random_movie():
         if movies:
             # Pick a random movie from the list
             random_movie = random.choice(movies)
+            for i in range(min(len(movies), 40)):
+                movie_id = movies[i].get('id')  # Get the movie ID
+                if movie_id:
+                    response = requests.get(url_details.format(movie_id=movie_id), headers=headers)
+                    response2 = requests.get(url_certification.format(movie_id=movie_id), headers=headers)
+                    if response.status_code == 200:
+                        movie_details = response.json()
+                        runtime = movie_details.get('runtime', None)  # Fetch runtime from details
+                        
+                        movies[i]['runtime'] = runtime  # Map runtime to the respective movie
+                    else:
+                        print(f"Failed to fetch runtime for movie ID {movie_id}: {response.status_code}")
+                    if response2.status_code == 200:
+                        release_dates = response2.json().get('results', [])
+                        us_certification = None
+                        for entry in release_dates:
+                            if entry.get('iso_3166_1') == "US":  # Look for US certifications
+                                us_release_dates = entry.get('release_dates', [])
+                                for release in us_release_dates:
+                                    certification = release.get('certification')
+                                    if certification:  # Check if certification is not empty
+                                        us_certification = certification
+                                        break  # Stop once a valid certification is found
+                                break  # Stop checking other countries once US is processed
+                        movies[i]['certification'] = us_certification  # Map certification to the respective movie
+                    else:
+                        print(f"Failed to fetch certification for movie ID {movie_id}: {response2.status_code}")
+                else:
+                    print(f"Missing movie ID at index {i}")
+            logger.info(f"random movie: {random_movie}")
             return render_template('random_movie.html', movie=random_movie)
         else:
             logger.error("No movies found.")
