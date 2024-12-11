@@ -1,24 +1,69 @@
-{% extends 'layout.html' %}
-{% block content %}
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile</title>
-    <link rel="stylesheet" href="static/css/style2.css">
+    <title>ReelVibes | Profile</title>
+    <link rel="stylesheet" href="static/CSS/profile.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 
 <body>
-    <!-- Button for deleting the account-->
-    <!-- Button for logging out -->
-    <div class="profile-container">
-        <div class="buttons-grid">
-            <form method="" action="">
-                <button id="delete-account" name="button_id">Delete Account</button>
-                <button id="log-out" name="button_id">Log Out</button>
-            </form>
+
+    <header>
+        <h2 class="logo">REELVIBES</h2>
+        <nav class="navigation">
+            <a href="{{ url_for('home') }}">HOME</a>
+            <a href="{{ url_for('recommend') }}">RECOMMEND</a>
+            <a href="{{ url_for('login') }}">LOGIN</a>
+        </nav>
+    </header>
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <h1>My Profile</h1>
+            <div class="profile-options">
+                <a href="#" data-target="info" class="active">Information</a>
+                <a href="#" data-target="update">Update My Profile</a>
+                <a href="#" data-target="delete">Delete My Account</a>
+                <a href="#" data-target="logout">Logout</a>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="content-section active" id="info">
+                <h1>Information</h1>
+                <h3>Username: JohnDoe (placeholder)</h3>
+            </div>
+            <div class="content-section" id="update">
+                <h1>Update My Profile</h1>
+                <p>Use this form to update your username and password.</p>
+                <form action="#" method="POST" class="update-form">
+                    <label for="new-username">New Username</label>
+                    <input type="text" id="new-username" name="new-username" placeholder="New Username" required>
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" name="new-password" placeholder="New Password" required>
+                    <button type="submit">Update Profile</button>
+                </form>
+            </div>
+            
+            <div class="content-section" id="delete">
+                <h1>Delete My Account</h1>
+                <p>Are you sure you want to delete your account? This action is irreversible.</p>
+                <button>Confirm</button>
+            </div>
+            <div class="content-section" id="logout">
+                <h1>Logout</h1>
+                <p>You have been logged out successfully.</p>
+                <a href="{{ url_for('login') }}"><button>Go to Login</button></a>
+            </div>
         </div>
     </div>
+
+    <script src="static/JS/profile.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
 
 </html>
