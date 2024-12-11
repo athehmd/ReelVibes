@@ -226,3 +226,7 @@
 2024-12-10 17:04:17,403 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
 2024-12-10 17:04:19,724 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
 2024-12-10 17:04:19,729 - ERROR - Error in user loader: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:11:29,214 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:11:29,214 - ERROR - cursor is none
+2024-12-10 17:11:29,431 - ERROR - Error connecting to DB Platform: 1045 (28000): Access denied for user 'root'@'localhost' (using password: NO)
+2024-12-10 17:11:29,432 - ERROR - cursor is none
