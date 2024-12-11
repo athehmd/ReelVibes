@@ -19,6 +19,7 @@ dotenv.load_dotenv()
 app = Flask(__name__)
 app.secret_key = 'password'  # Required for Flask-Login
 BEARER_TOKEN = os.environ.get('tmdbAPIKEY') # READ TOKEN
+app.jinja_env.filters['upper'] = str.upper
 
 # Flask-Login setup
 login_manager = LoginManager()
@@ -161,15 +162,30 @@ def load_user(user_id):
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    current_username = current_user.getId()
     if request.method == 'POST':
         try:
-            req = request.form.get('button_id')
-            if req == "delete":
-                return redirect(url_for('delete'))
+            local_conn = mysql.connector.connect(
+                user="root",
+                password=os.environ.get("mariadbpassword"),
+                host="127.0.0.1",
+                port=3306,
+                database="reelvibes"
+            )
+            new_username = request.form.get('new-username')
+            confirm_username = request.form.get('confirm-username')
+            if new_username == confirm_username:
+                cursor = local_conn.cursor(dictionary=True)
+                cursor.execute("UPDATE users SET username = %s WHERE username = %s", (new_username, current_username))
+                if cursor.rowcount > 0:
+                    local_conn.commit()
+                    return redirect(url_for('profile'))
+                cursor.close()
+                local_conn.close()
         except mysql.connector.Error as err:
             logger.error(f"Error in user loader: {err}")
         
-    return(render_template('profile.html'))
+    return(render_template('profile.html', username=current_username))
 
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
